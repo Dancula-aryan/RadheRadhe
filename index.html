@@ -1,0 +1,3017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇮🇳 TEAM BORDER - AI BATTLEFIELD 🔥</title>
+    <style>
+        body {  
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.85);
+            color: #2dbbce;
+            padding: 20px;
+            border-radius: 20px;
+            border: 3px solid rgb(238, 127, 232);
+            backdrop-filter: blur(5px);
+            max-width: 200px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        
+        #hud h1 {
+            margin: 0 0 15px 0;
+            font-size: 1.8em;
+            text-align: center;
+            text-shadow: 2px 2px 0 rgb(202, 82, 82)1;
+            border-bottom: 2px solid #ffaa00;
+            padding-bottom: 10px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 1.1em;
+        }
+        
+        .stat-label {
+            color: #f0f0f0;
+        }
+        
+        .stat-value {
+            color: #ffabf4;
+            font-weight: bold;
+        }
+        
+        #healthBar {
+            width: 100%;
+            height: 20px;
+            background: #310f0f;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 2px solid #d8d1d1;
+        }
+        
+        #healthFill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ff4444, #1eff00);
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+ 
+        #epBar {
+            width: 100%;
+            height: 16px;
+            background: #0b1530;
+            border-radius: 10px;
+            margin: 10px 0 5px 0;
+            overflow: hidden;
+            border: 2px solid #4fc3f7;
+        }
+ 
+        #epFill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #7b2ff7, #4fd8ff);
+            transition: width 0.2s;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #4fd8ff;
+        }
+ 
+        #epFill.ready {
+            animation: epPulse 0.8s infinite;
+        }
+ 
+        @keyframes epPulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.6); }
+        }
+ 
+        #orionStatus {
+            display: none;
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 150;
+            background: rgba(20, 0, 40, 0.8);
+            color: #c9a3ff;
+            padding: 10px 22px;
+            border-radius: 30px;
+            border: 2px solid #7b2ff7;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 0 25px rgba(123,47,247,0.7);
+            text-align: center;
+        }
+ 
+        #zoneStatus {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 140;
+            background: rgba(0, 20, 40, 0.75);
+            color: #4fd8ff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 2px solid #4fc3f7;
+            font-weight: bold;
+            font-size: 1em;
+            text-align: center;
+        }
+ 
+        #zoneWarning {
+            display: none;
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 150;
+            background: rgba(60, 0, 0, 0.85);
+            color: #ff5c5c;
+            padding: 8px 22px;
+            border-radius: 20px;
+            border: 2px solid #ff2d2d;
+            font-weight: bold;
+            font-size: 1em;
+            animation: epPulse 0.6s infinite;
+            text-align: center;
+        }
+ 
+        #matchTimer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 140;
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffd700;
+            padding: 8px 18px;
+            border-radius: 16px;
+            border: 2px solid #ffaa00;
+            font-weight: bold;
+            font-size: 1.1em;
+            font-variant-numeric: tabular-nums;
+        }
+ 
+        #finalMinuteWarning {
+            display: none;
+            position: absolute;
+            top: 170px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 150;
+            background: rgba(80, 0, 0, 0.9);
+            color: #ff8a8a;
+            padding: 8px 22px;
+            border-radius: 20px;
+            border: 2px solid #ff2d2d;
+            font-weight: bold;
+            font-size: 1em;
+            animation: epPulse 0.5s infinite;
+            text-align: center;
+        }
+ 
+        #gameEndScreen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(0,0,0,0.88);
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+        }
+ 
+        #gameEndCard {
+            text-align: center;
+            background: rgba(20,20,30,0.9);
+            border: 3px solid #ffd700;
+            border-radius: 24px;
+            padding: 40px 50px;
+            box-shadow: 0 0 60px rgba(255,215,0,0.4);
+        }
+ 
+        #gameEndTitle {
+            font-size: 2.3em;
+            margin: 0 0 14px 0;
+            text-shadow: 2px 2px 0 #000;
+        }
+ 
+        #gameEndMsg {
+            font-size: 1.2em;
+            color: #cfe3ff;
+            margin-bottom: 24px;
+        }
+ 
+        #gameEndBtn {
+            padding: 14px 34px;
+            border-radius: 14px;
+            border: 2px solid #ffd700;
+            background: linear-gradient(90deg, #ffaa00, #ff7a00);
+            color: #1a1000;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.85);
+            color: #fff1d4;
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: 2px solid #d84a26;
+            display: flex;
+            gap: 20px;
+            backdrop-filter: blur(5px);
+            font-size: 1em;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 95%;
+        }
+        
+        .key {
+            background: #fffb03;
+            color: #000000;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 0 3px;
+            border: 2px solid #ff0000;
+            display: inline-block;
+            min-width: 10px;
+            text-align: center;
+        }
+        
+        .key-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(136, 170, 214, 0.3);
+            padding: 5px 12px;
+            border-radius: 30px;
+            border: 1px solid #63ff09;
+        }
+        
+        #status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            color: #00b7ff;
+            padding: 20px;
+            border-radius: 20px;
+            border: 3px solid #00ffd5;
+            font-size: 1.2em;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            min-width: 150px;
+        }
+        
+        #inVehicleStatus {
+            color: #ff0800;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+        
+        #medkitTimer {
+            display: none;
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            background: rgba(0,0,0,0.8);
+            color: #4fd8ff;
+            padding: 18px 30px;
+            border-radius: 20px;
+            border: 3px solid #4fc3f7;
+            font-size: 1.6em;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(79,216,255,0.6);
+            font-variant-numeric: tabular-nums;
+        }
+ 
+        #dialog {
+            position: absolute;
+            bottom: 240px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.9);
+            color: #00c3ff;
+            padding: 2px 3px;
+            border-radius: 50px;
+            border: 3px solid #ffd700;
+            font-size: 1.2em;
+            font-style: italic;
+            white-space: nowrap;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 30px rgba(255,215,0,0.3);
+        }
+        
+        #miniMap {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+            width: 120px;
+            height: 120px;
+            background: rgba(0,0,0,0.7);
+            border: 3px solid #49aac7;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            overflow: hidden;
+        }
+        
+        #miniMap canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #weaponWheel {
+            position: absolute;
+            top: 200px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #237392;
+            text-align: center;
+            max-width: 100px 100px;
+        }
+        
+        .weapon-slot {
+            padding: 1px;
+            margin: 5px 0;
+            background: rgba(255,170,0,0.2);
+            border-radius: 8px;
+            border: 1px solid #ffaa00;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        
+        .weapon-slot:hover, .weapon-slot.active {
+            background: #fdd5f4;
+            color: #1a2a1a;
+            transform: scale(1.05);
+        }
+        
+        #teammateStatus {
+            position: absolute;
+            top: 20px;
+            left: 400px;
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #ffaa00;
+            color: white;
+            min-width: 220px;
+        }
+        
+        .teammate {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.952);
+            border-radius: 8px;
+        }
+        
+        .teammate-health {
+            height: 10px;
+            background: #10ca3e;
+            border-radius: 5px;
+            flex-grow: 1;
+        }
+        
+        .teammate-kills {
+            color: #ffaa00;
+            font-size: 0.9em;
+        }
+        
+        .btn {
+            position: absolute;
+            top: 20px;
+            right: 300px;
+            z-index: 100;
+            background: #ffaa00;
+            color: #1a2a1a;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: 2px solid #ffd700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            background: #ffd700;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ffaa00;
+        }
+        
+        #combatLog {
+            position: absolute;
+            bottom: 200px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ffaa00;
+            max-width: 300px;
+            font-size: 0.9em;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            margin: 3px 0;
+            padding: 2px;
+            border-bottom: 1px solid #444;
+        }
+ 
+        /* ===================== LOBBY SCREEN ===================== */
+        #lobbyScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: radial-gradient(circle at 50% 20%, #1c2b4a 0%, #060912 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+        }
+ 
+        #lobbyCard {
+            width: 92%;
+            max-width: 480px;
+            max-height: 92vh;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.55);
+            border: 3px solid #4fc3f7;
+            border-radius: 24px;
+            padding: 28px 30px;
+            box-shadow: 0 0 50px rgba(79,195,247,0.35);
+            text-align: center;
+        }
+ 
+        #lobbyCard h1 {
+            margin: 0 0 4px 0;
+            font-size: 1.9em;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 #d84a26;
+        }
+ 
+        #lobbyCard .sub {
+            color: #9db8d6;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+ 
+        .lobby-section {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+ 
+        .lobby-label {
+            color: #4fd8ff;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+ 
+        #playerNameInput {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 2px solid #4fc3f7;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            font-size: 1.05em;
+            outline: none;
+        }
+        #playerNameInput::placeholder { color: #7d93b3; }
+ 
+        .choice-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+ 
+        .choice-btn {
+            flex: 1;
+            min-width: 90px;
+            padding: 10px 8px;
+            border-radius: 12px;
+            border: 2px solid #3a5a8a;
+            background: rgba(255,255,255,0.06);
+            color: #cfe3ff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+        }
+ 
+        .choice-btn:hover { background: rgba(79,195,247,0.2); }
+ 
+        .choice-btn.selected {
+            background: #4fc3f7;
+            color: #06121f;
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(79,195,247,0.7);
+        }
+ 
+        .dress-row { display: flex; gap: 10px; justify-content: center; }
+ 
+        .dress-swatch {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+ 
+        .dress-swatch:hover { transform: scale(1.1); }
+ 
+        .dress-swatch.selected {
+            border-color: #fff;
+            box-shadow: 0 0 12px rgba(255,255,255,0.8);
+            transform: scale(1.12);
+        }
+ 
+        .mode-row { display: flex; gap: 12px; margin-bottom: 6px; }
+ 
+        .mode-btn {
+            flex: 1;
+            padding: 14px 8px;
+            border-radius: 14px;
+            border: 2px solid #d84a26;
+            background: rgba(255,255,255,0.05);
+            color: #ffd6c4;
+            font-weight: bold;
+            font-size: 1.05em;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+ 
+        .mode-btn:hover { background: rgba(216,74,38,0.25); }
+ 
+        .mode-btn.selected {
+            background: #d84a26;
+            color: #fff;
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(216,74,38,0.7);
+        }
+ 
+        #lobbyStartBtn {
+            width: 100%;
+            margin-top: 6px;
+            padding: 16px;
+            border-radius: 16px;
+            border: 2px solid #ffd700;
+            background: linear-gradient(90deg, #ffaa00, #ff7a00);
+            color: #1a1000;
+            font-size: 1.2em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+ 
+        #lobbyStartBtn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 25px #ffaa00;
+        }
+ 
+        /* ===================== LOADING SCREEN ===================== */
+        #loadingScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: #05060a;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+ 
+        #loadingScreen h1 {
+            font-size: 3.2em;
+            margin: 0 0 30px 0;
+            letter-spacing: 4px;
+            color: #ff2d2d;
+            text-shadow: 0 0 20px #ff2d2d, 0 0 40px #ff2d2d;
+            animation: hackerFlicker 1.4s infinite;
+            font-family: 'Courier New', monospace;
+        }
+ 
+        @keyframes hackerFlicker {
+            0%, 100% { opacity: 1; }
+            48% { opacity: 1; }
+            50% { opacity: 0.55; }
+            52% { opacity: 1; }
+        }
+ 
+        #loadingBarOuter {
+            width: 70%;
+            max-width: 500px;
+            height: 22px;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid #4fd8ff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(79,216,255,0.4);
+        }
+ 
+        #loadingBarFill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4fd8ff, #4fc3f7);
+            transition: width 0.1s linear;
+        }
+ 
+        #loadingPercent {
+            margin-top: 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #4fd8ff;
+            letter-spacing: 2px;
+        }
+ 
+        #loadingTip {
+            margin-top: 24px;
+            color: #6d7f99;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <!-- ===================== LOBBY ===================== -->
+    <div id="lobbyScreen">
+        <div id="lobbyCard">
+            <h1>🇮🇳 TEAM BORDER</h1>
+            <div class="sub">Set up your soldier before deploying</div>
+ 
+            <div class="lobby-section">
+                <div class="lobby-label">👤 Name</div>
+                <input id="playerNameInput" type="text" maxlength="16" placeholder="Enter your name" value="Sher Singh">
+            </div>
+ 
+            <div class="lobby-section">
+                <div class="lobby-label">⚧ Gender</div>
+                <div class="choice-row">
+                    <div class="choice-btn selected" id="genderMale" onclick="selectGender('male')">♂ Male</div>
+                    <div class="choice-btn" id="genderFemale" onclick="selectGender('female')">♀ Female</div>
+                </div>
+            </div>
+ 
+            <div class="lobby-section">
+                <div class="lobby-label">👕 Dress Color</div>
+                <div class="dress-row" id="dressRow"></div>
+            </div>
+ 
+            <div class="lobby-section">
+                <div class="lobby-label">🎮 Game Mode</div>
+                <div class="mode-row">
+                    <div class="mode-btn selected" id="modeBR" onclick="selectMode('br')">🌍 BR</div>
+                    <div class="mode-btn" id="modeCS" onclick="selectMode('cs')">💣 CS</div>
+                </div>
+            </div>
+ 
+            <button id="lobbyStartBtn" onclick="enterLoading()">⚔️ START MISSION</button>
+        </div>
+    </div>
+ 
+    <!-- ===================== LOADING ===================== -->
+    <div id="loadingScreen">
+        <h1>HACKER KING</h1>
+        <div id="loadingBarOuter"><div id="loadingBarFill"></div></div>
+        <div id="loadingPercent">0%</div>
+        <div id="loadingTip">Deploying soldiers to the border...</div>
+    </div>
+ 
+    <!-- ===================== GAME END (WIN / LOSE) ===================== -->
+    <div id="gameEndScreen">
+        <div id="gameEndCard">
+            <h1 id="gameEndTitle">🎉 CONGRATULATIONS! 🎉</h1>
+            <p id="gameEndMsg"></p>
+            <button id="gameEndBtn" onclick="location.reload()">🔄 Play Again</button>
+        </div>
+    </div>
+ 
+    <div id="hud">
+        <h1>Free Feir</h1>
+        <div class="stat-row">
+            <span class="stat-label">🎯 YOUR SCORE:</span>
+            <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">⚔️ ENEMIES LEFT:</span>
+            <span class="stat-value" id="enemyCount">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">🌊 WAVE:</span>
+            <span class="stat-value" id="wave">1</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">🚗 VEHICLE:</span>
+            <span class="stat-value" id="vehicle">None</span>
+        </div>
+        <div id="healthBar">
+            <div id="healthFill" style="width: 100%"></div>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">❤️ YOUR HEALTH:</span>
+            <span class="stat-value" id="health">100</span>
+        </div>
+        <div id="epBar">
+            <div id="epFill" style="width: 0%"></div>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">🌌 ORION EP:</span>
+            <span class="stat-value" id="epText">0/100</span>
+        </div>
+    </div>
+ 
+    <div id="teammateStatus">
+        <div style="color: #ffaa00; margin-bottom: 10px;">👥 AI TEAM MATES</div>
+        <div id="teammatesList"></div>
+        <div style="margin-top: 10px; color: #00ff2a;" id="teamKills">Team Kills: 0</div>
+    </div>
+ 
+    <div id="status">
+        <div>⚡ COMBAT STATUS</div>
+        <div id="inVehicleStatus">⚪ ON FOOT</div>
+        <div style="font-size: 0.9em; margin-top: 10px;" id="nearVehicle">Near: None</div>
+        <div style="font-size: 0.9em; margin-top: 5px;" id="weaponStatus">Weapon: Rifle (∞)</div>
+        <div style="font-size: 0.9em; margin-top: 5px;" id="enemyAlert">⚠️ Enemies nearby: 0</div>
+        <div style="font-size: 0.9em; margin-top: 5px; color:#4fd8ff;" id="playerInfoLine"></div>
+    </div>
+ 
+    <div id="weaponWheel">
+        <div style="color: #ffaa00; margin-bottom: 10px;">🔫 WEAPONS</div>
+        <div class="weapon-slot active" onclick="selectWeapon(0)">🔫 Rifle (∞)</div>
+        <div class="weapon-slot" onclick="selectWeapon(1)">💣 Rocket Launcher (<span id="rocketAmmo">5</span>)</div>
+        <div class="weapon-slot" onclick="selectWeapon(2)">🔫 Machine Gun (<span id="mgAmmo">100</span>)</div>
+        <div class="weapon-slot" onclick="selectWeapon(3)">💥 Grenade (<span id="grenadeAmmo">3</span>)</div>
+        <div class="weapon-slot" id="glooSlot" onclick="toggleGlooPlacement()">🧊 Gloo Wall (<span id="glooAmmo">∞</span>)</div>
+        <div class="weapon-slot" id="medkitSlot" onclick="useMedkit()">💊 Med Kit</div>
+        <div class="weapon-slot" id="orionSlot" onclick="toggleOrionSkill()">🌌 Orion Skill (H)</div>
+    </div>
+ 
+    <div id="medkitTimer">💉 HEALING <span id="medkitTimerValue">2.000</span>s</div>
+ 
+    <div id="orionStatus">🌌 ORION ACTIVE - <span id="orionTimeLeft">0:03</span></div>
+ 
+    <div id="zoneStatus">🗺️ <span id="zoneLabel">Zone 1/4</span> • Shrinks in <span id="zoneTimer">10:00</span></div>
+    <div id="matchTimer">⏱️ <span id="matchTimeLeft">15:00</span></div>
+    <div id="finalMinuteWarning">🔥 FINAL MINUTE - IF YOU DIE NOW, YOU LOSE! 🔥</div>
+    <div id="zoneWarning">⚠️ OUTSIDE SAFE ZONE - TAKING DAMAGE!</div>
+ 
+    <div id="dialog">"Free Feir - EKDUM STANDING ORDER HAI!"</div>
+    
+    <div id="combatLog">
+        <div style="color: #ffaa00;">📋 COMBAT LOG</div>
+        <div id="logMessages"></div>
+    </div>
+ 
+    <div id="controls">
+        <div class="key-group">
+            <span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span>
+            <span>MOVE</span>
+        </div>
+        <div class="key-group">
+            <span class="key">MOUSE</span>
+            <span>360° AIM</span>
+        </div>
+        <div class="key-group">
+            <span class="key">CLICK</span>
+            <span>FIRE</span>
+        </div>
+        <div class="key-group">
+            <span class="key">F</span>
+            <span>VEHICLE</span>
+        </div>
+        <div class="key-group">
+            <span class="key">1-4</span>
+            <span>WEAPONS</span>
+        </div>
+        <div class="key-group">
+            <span class="key">E</span>
+            <span>PICKUP</span>
+        </div>
+        <div class="key-group">
+            <span class="key">SHIFT</span>
+            <span>RUN</span>
+        </div>
+        <div class="key-group">
+            <span class="key">C</span>
+            <span>TEAM ATTACK</span>
+        </div>
+        <div class="key-group">
+            <span class="key">G</span>
+            <span>GLOO WALL</span>
+        </div>
+        <div class="key-group">
+            <span class="key">M</span>
+            <span>MED KIT</span>
+        </div>
+        <div class="key-group">
+            <span class="key">SPACE</span>
+            <span>JUMP</span>
+        </div>
+        <div class="key-group">
+            <span class="key">V</span>
+            <span>SIT</span>
+        </div>
+        <div class="key-group">
+            <span class="key">B</span>
+            <span>LIE DOWN</span>
+        </div>
+        <div class="key-group">
+            <span class="key">H</span>
+            <span>ORION SKILL</span>
+        </div>
+        <div class="key-group">
+            <span class="key">DEL</span>
+            <span>CLEAR WALLS</span>
+        </div>
+        <div class="key-group">
+            <span class="key">O</span>
+            <span>REVIVE</span>
+        </div>
+    </div>
+ 
+    <div id="miniMap">
+        <canvas id="mapCanvas" width="220" height="220"></canvas>
+    </div>
+ 
+    <!-- Old direct start button replaced by the lobby → loading → game flow -->
+ 
+    <!-- Three.js library -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+ 
+    <script type="module">
+        
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/PointerLockControls.js';
+        
+        // --- SCENE SETUP ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB);
+        scene.fog = new THREE.Fog(0x87CEEB, 200, 1000);
+        
+        // --- CAMERA ---
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 10);
+        
+        // --- RENDERER ---
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+        
+        // --- CONTROLS (360° mouse look) ---
+        const controls = new PointerLockControls(camera, document.body);
+        
+        // Click to lock pointer
+        renderer.domElement.addEventListener('click', () => {
+            if (gameRunning) controls.lock();
+        });
+        
+        controls.addEventListener('unlock', () => {
+            isMouseDown = false;
+        });
+ 
+        // --- LIGHTS ---
+        const sunLight = new THREE.DirectionalLight(0xfff5d1, 1.2);
+        sunLight.position.set(100, 200, 100);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        sunLight.shadow.camera.left = -300;
+        sunLight.shadow.camera.right = 300;
+        sunLight.shadow.camera.top = 300;
+        sunLight.shadow.camera.bottom = -300;
+        sunLight.shadow.camera.near = 1;
+        sunLight.shadow.camera.far = 600;
+        scene.add(sunLight);
+        
+        const ambientLight = new THREE.AmbientLight(0x404060);
+        scene.add(ambientLight);
+        
+        // --- TERRAIN ---
+        // Ground (map length increased - was 2000x2000)
+        const groundGeo = new THREE.PlaneGeometry(4000, 4000);
+        const groundMat = new THREE.MeshStandardMaterial({ color: 0x2d5a27 });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = 0;
+        ground.receiveShadow = true;
+        scene.add(ground);
+        
+        // Border fence
+        for (let x = -800; x <= 800; x += 30) {
+            const postGeo = new THREE.CylinderGeometry(1.5, 1.5, 10);
+            const postMat = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+            const post = new THREE.Mesh(postGeo, postMat);
+            post.position.set(x, 5, -200);
+            post.castShadow = true;
+            post.receiveShadow = true;
+            scene.add(post);
+        }
+        
+        // Environment
+        const MAP_HALF = 1900; // map length increased - spread objects across the bigger world
+        const rockColliders = []; // solid rocks: block player movement + block bullets (cover)
+        for (let i = 0; i < 160; i++) {
+            const rockRadius = 1 + Math.random() * 2;
+            const rockGeo = new THREE.DodecahedronGeometry(rockRadius);
+            const rockMat = new THREE.MeshStandardMaterial({ color: 0x808080 });
+            const rock = new THREE.Mesh(rockGeo, rockMat);
+            rock.position.set(
+                (Math.random() - 0.5) * MAP_HALF * 2,
+                1,
+                (Math.random() - 0.5) * MAP_HALF * 2
+            );
+            rock.castShadow = true;
+            rock.receiveShadow = true;
+            scene.add(rock);
+ 
+            rockColliders.push({
+                mesh: rock,
+                radius: rockRadius * 0.95 // solid collision + cover radius
+            });
+        }
+ 
+        // ===================== MAP LOCATIONS: houses, factory, trees, pylons, peaks =====================
+        const buildingColliders = []; // solid, indestructible - houses & factory block movement + bullets
+ 
+        function createHouse(x, z) {
+            const g = new THREE.Group();
+            const wallMat = new THREE.MeshStandardMaterial({ color: [0xd9c7a3, 0xc9a97a, 0xe0dccc][Math.floor(Math.random() * 3)] });
+            const roofMat = new THREE.MeshStandardMaterial({ color: 0x8b3a2f });
+ 
+            const w = 10 + Math.random() * 4, d = 10 + Math.random() * 4, h = 7;
+            const walls = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+            walls.position.y = h / 2;
+            walls.castShadow = true; walls.receiveShadow = true;
+            g.add(walls);
+ 
+            const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * 0.75, 4.5, 4), roofMat);
+            roof.position.y = h + 2.25;
+            roof.rotation.y = Math.PI / 4;
+            roof.castShadow = true;
+            g.add(roof);
+ 
+            const doorMat = new THREE.MeshStandardMaterial({ color: 0x3a2417 });
+            const door = new THREE.Mesh(new THREE.BoxGeometry(1.8, 3.2, 0.3), doorMat);
+            door.position.set(0, 1.6, d / 2 + 0.15);
+            g.add(door);
+ 
+            g.position.set(x, 0, z);
+            g.rotation.y = Math.random() * Math.PI * 2;
+            scene.add(g);
+            buildingColliders.push({ mesh: g, radius: Math.max(w, d) * 0.62 });
+        }
+ 
+        function createFactory(x, z) {
+            const g = new THREE.Group();
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x6b6f76 });
+            const w = 26, d = 20, h = 12;
+            const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), bodyMat);
+            body.position.y = h / 2;
+            body.castShadow = true; body.receiveShadow = true;
+            g.add(body);
+ 
+            const chimneyMat = new THREE.MeshStandardMaterial({ color: 0x4a4d52 });
+            for (let i = -1; i <= 1; i += 2) {
+                const chimney = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.4, 9), chimneyMat);
+                chimney.position.set(i * 8, h + 4.5, 0);
+                chimney.castShadow = true;
+                g.add(chimney);
+            }
+ 
+            g.position.set(x, 0, z);
+            g.rotation.y = Math.random() * Math.PI * 2;
+            scene.add(g);
+            buildingColliders.push({ mesh: g, radius: Math.max(w, d) * 0.62 });
+        }
+ 
+        function createTree(x, z) {
+            const g = new THREE.Group();
+            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5a3a22 });
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.7, 6), trunkMat);
+            trunk.position.y = 3;
+            trunk.castShadow = true;
+            g.add(trunk);
+ 
+            const leafMat = new THREE.MeshStandardMaterial({ color: [0x2e6b2e, 0x3a7d3a, 0x275c27][Math.floor(Math.random() * 3)] });
+            const leaves = new THREE.Mesh(new THREE.ConeGeometry(3.2, 7, 8), leafMat);
+            leaves.position.y = 8;
+            leaves.castShadow = true;
+            g.add(leaves);
+ 
+            g.position.set(x, 0, z);
+            scene.add(g); // decorative only, no collider
+        }
+ 
+        function createElectricPylon(x, z) {
+            const g = new THREE.Group();
+            const metalMat = new THREE.MeshStandardMaterial({ color: 0x999999 });
+            const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 1.6, 22, 6), metalMat);
+            tower.position.y = 11;
+            tower.castShadow = true;
+            g.add(tower);
+ 
+            const armGeo = new THREE.BoxGeometry(9, 0.4, 0.4);
+            for (let i = 0; i < 2; i++) {
+                const arm = new THREE.Mesh(armGeo, metalMat);
+                arm.position.y = 16 - i * 3;
+                g.add(arm);
+            }
+ 
+            g.position.set(x, 0, z);
+            scene.add(g); // decorative only, no collider (thin structure)
+        }
+ 
+        function createPeak(x, z) {
+            const g = new THREE.Group();
+            const rockMat = new THREE.MeshStandardMaterial({ color: 0x6e6a63 });
+            const size = 50 + Math.random() * 40;
+            const mountain = new THREE.Mesh(new THREE.ConeGeometry(size * 0.7, size, 7), rockMat);
+            mountain.position.y = size / 2;
+            mountain.castShadow = true;
+ 
+            const snowMat = new THREE.MeshStandardMaterial({ color: 0xf0f5ff });
+            const snow = new THREE.Mesh(new THREE.ConeGeometry(size * 0.22, size * 0.28, 7), snowMat);
+            snow.position.y = size - size * 0.1;
+ 
+            g.add(mountain);
+            g.add(snow);
+            g.position.set(x, 0, z);
+            scene.add(g); // huge decorative backdrop, out near the map edge
+        }
+ 
+        // Scatter a small village (houses) + a factory near the middle of the map
+        const HOUSE_CLUSTER_CENTER = new THREE.Vector3(300, 0, 300);
+        for (let i = 0; i < 10; i++) {
+            const a = (i / 10) * Math.PI * 2;
+            const r = 40 + Math.random() * 60;
+            createHouse(HOUSE_CLUSTER_CENTER.x + Math.cos(a) * r, HOUSE_CLUSTER_CENTER.z + Math.sin(a) * r);
+        }
+        createFactory(-350, -250);
+        createFactory(500, -400);
+ 
+        // Forest patches of trees
+        for (let i = 0; i < 90; i++) {
+            createTree((Math.random() - 0.5) * MAP_HALF * 2, (Math.random() - 0.5) * MAP_HALF * 2);
+        }
+ 
+        // A line of electric transmission pylons crossing the map
+        for (let i = -6; i <= 6; i++) {
+            createElectricPylon(i * 120, -600);
+        }
+ 
+        // Mountain peaks ringing the outer edge of the map
+        for (let i = 0; i < 14; i++) {
+            const a = (i / 14) * Math.PI * 2;
+            createPeak(Math.cos(a) * (MAP_HALF - 60), Math.sin(a) * (MAP_HALF - 60));
+        }
+ 
+        // ===================== SAFE ZONE (shrinking storm - 3 shrinks, 4 stages) =====================
+        const SAFE_ZONE_CENTER = new THREE.Vector3(0, 0, 0);
+        const ZONE_RADII = [1850, 950, 450, 150];     // zone 1 starts at the map's outer edge, then shrinks 3x
+        const ZONE_DURATIONS = [10 * 60000, 5 * 60000, 3 * 60000, 0.5 * 60000]; // time you can spend in each zone
+        const ZONE_SHRINK_TIME = 20 * 1000; // 20 sec animated shrink between stages
+        const ZONE_DAMAGE_PER_SEC = 6; // can kill you if you stay outside
+ 
+        let zonePhase = 0;
+        let zonePhaseStartTime = performance.now();
+        let zoneIsShrinking = false;
+        let zoneShrinkStartTime = 0;
+        let zoneCurrentRadius = ZONE_RADII[0];
+        let zoneTargetRadius = ZONE_RADII[0];
+        let zoneDamageAccum = 0;
+ 
+        // ===================== MATCH TIMER (15 min match, last 1 min = sudden death) =====================
+        const MATCH_DURATION = 15 * 60 * 1000;
+        const FINAL_MINUTE = 60 * 1000;
+        let matchStartTime = performance.now();
+        let isFinalMinute = false;
+        let matchEnded = false;
+ 
+        // Ground ring outline showing the current boundary
+        const zoneRing = new THREE.Mesh(
+            new THREE.RingGeometry(0.98, 1, 128),
+            new THREE.MeshBasicMaterial({ color: 0x4fd8ff, transparent: true, opacity: 0.8, side: THREE.DoubleSide })
+        );
+        zoneRing.rotation.x = -Math.PI / 2;
+        zoneRing.position.set(SAFE_ZONE_CENTER.x, 0.3, SAFE_ZONE_CENTER.z);
+        zoneRing.scale.set(ZONE_RADII[0], ZONE_RADII[0], 1);
+        scene.add(zoneRing);
+ 
+        // Translucent storm wall so the boundary is visible from a distance
+        const zoneWall = new THREE.Mesh(
+            new THREE.CylinderGeometry(1, 1, 300, 64, 1, true),
+            new THREE.MeshBasicMaterial({ color: 0x7b2ff7, transparent: true, opacity: 0.08, side: THREE.DoubleSide })
+        );
+        zoneWall.position.set(SAFE_ZONE_CENTER.x, 150, SAFE_ZONE_CENTER.z);
+        zoneWall.scale.set(ZONE_RADII[0], 1, ZONE_RADII[0]);
+        scene.add(zoneWall);
+        
+        // --- WEAPONS ON GROUND ---
+        const weaponsOnGround = [];
+        
+        function createWeaponOnGround(type, pos) {
+            const group = new THREE.Group();
+            
+            if (type === 0) { // Rifle
+                const geo = new THREE.BoxGeometry(0.5, 0.5, 2);
+                const mat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+                const gun = new THREE.Mesh(geo, mat);
+                gun.rotation.x = Math.PI / 2;
+                gun.position.y = 0.5;
+                group.add(gun);
+            } else if (type === 1) { // Rocket
+                const geo = new THREE.CylinderGeometry(0.4, 0.4, 2);
+                const mat = new THREE.MeshStandardMaterial({ color: 0x556B2F });
+                const launcher = new THREE.Mesh(geo, mat);
+                launcher.rotation.z = Math.PI / 2;
+                launcher.position.y = 0.5;
+                group.add(launcher);
+            }
+            
+            // Glow
+            const light = new THREE.PointLight(0xffaa00, 1, 5);
+            light.position.set(0, 1, 0);
+            group.add(light);
+            
+            group.position.copy(pos);
+            scene.add(group);
+            
+            weaponsOnGround.push({
+                mesh: group,
+                type: type,
+                ammo: type === 1 ? 5 : (type === 2 ? 100 : 3)
+            });
+        }
+        
+        createWeaponOnGround(1, new THREE.Vector3(50, 0, 150)); // Rocket
+        createWeaponOnGround(2, new THREE.Vector3(-50, 0, 200)); // MG
+        createWeaponOnGround(3, new THREE.Vector3(80, 0, 100)); // Grenade
+        
+        // --- PLAYER ---
+        const playerGroup = new THREE.Group();
+        
+        // Body
+        const bodyGeo = new THREE.CylinderGeometry(1, 1, 3);
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4A704A });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.position.y = 1.5;
+        body.castShadow = true;
+        body.receiveShadow = true;
+        playerGroup.add(body);
+        
+        // Head
+        const headGeo = new THREE.SphereGeometry(0.8);
+        const headMat = new THREE.MeshStandardMaterial({ color: 0xFFDBAD });
+        const head = new THREE.Mesh(headGeo, headMat);
+        head.position.y = 3;
+        head.castShadow = true;
+        playerGroup.add(head);
+        
+        playerGroup.position.set(0, 0, 100);
+        scene.add(playerGroup);
+        
+        // --- AI TEAMMATES (4 Soldiers) ---
+        const teammates = [];
+        const teamNames = ["Mexim", "Kally", "Tetsuya", "Oreon"];
+        const teamColors = [0x4A704A, 0x2E5A2E, 0x3D6B3D, 0x1F4A1F];
+        
+        for (let i = 0; i < 4; i++) {
+            const mateGroup = new THREE.Group();
+            
+            // Body
+            const mBodyGeo = new THREE.CylinderGeometry(1, 1, 3);
+            const mBodyMat = new THREE.MeshStandardMaterial({ color: teamColors[i] });
+            const mBody = new THREE.Mesh(mBodyGeo, mBodyMat);
+            mBody.position.y = 1.5;
+            mBody.castShadow = true;
+            mBody.receiveShadow = true;
+            mateGroup.add(mBody);
+            
+            // Head
+            const mHeadGeo = new THREE.SphereGeometry(0.8);
+            const mHeadMat = new THREE.MeshStandardMaterial({ color: 0xFFDBAD });
+            const mHead = new THREE.Mesh(mHeadGeo, mHeadMat);
+            mHead.position.y = 3;
+            mHead.castShadow = true;
+            mateGroup.add(mHead);
+            
+            // Gun
+            const mGunGeo = new THREE.BoxGeometry(0.4, 0.4, 1.5);
+            const mGunMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+            const mGun = new THREE.Mesh(mGunGeo, mGunMat);
+            mGun.position.set(1, 2, 1);
+            mGun.rotation.x = 0.2;
+            mGun.castShadow = true;
+            mateGroup.add(mGun);
+            
+            // Position around player
+            const angle = (i / 4) * Math.PI * 2;
+            mateGroup.position.set(
+                playerGroup.position.x + Math.cos(angle) * 15,
+                0,
+                playerGroup.position.z + Math.sin(angle) * 15
+            );
+            
+            scene.add(mateGroup);
+            
+            teammates.push({
+                mesh: mateGroup,
+                name: teamNames[i],
+                health: 100,
+                maxHealth: 100,
+                kills: 0,
+                isAlive: true,
+                isKnocked: false,
+                targetEnemy: null,
+                lastFireTime: 0,
+                lastGlooTime: 0,
+                accuracy: 0.3 + (i * 0.1), // Different accuracy levels
+                fireRate: 1000 + (i * 200)
+            });
+        }
+        
+        // --- TANK ---
+        const tankGroup = new THREE.Group();
+        
+        // Body
+        const tBodyGeo = new THREE.BoxGeometry(5, 2, 8);
+        const tBodyMat = new THREE.MeshStandardMaterial({ color: 0x4A704A });
+        const tBody = new THREE.Mesh(tBodyGeo, tBodyMat);
+        tBody.position.y = 1;
+        tBody.castShadow = true;
+        tBody.receiveShadow = true;
+        tankGroup.add(tBody);
+        
+        // Tracks
+        const trackGeo = new THREE.BoxGeometry(6, 1, 9);
+        const trackMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+        
+        [-2.5, 2.5].forEach(x => {
+            const track = new THREE.Mesh(trackGeo, trackMat);
+            track.position.set(x, 0.5, 0);
+            track.castShadow = true;
+            track.receiveShadow = true;
+            tankGroup.add(track);
+        });
+        
+        // Turret
+        const turretGeo = new THREE.CylinderGeometry(2, 2, 1.5, 8);
+        const turretMat = new THREE.MeshStandardMaterial({ color: 0x556B2F });
+        const turret = new THREE.Mesh(turretGeo, turretMat);
+        turret.position.y = 2.5;
+        turret.position.z = -1;
+        turret.castShadow = true;
+        turret.receiveShadow = true;
+        tankGroup.add(turret);
+        
+        tankGroup.position.set(-50, 0, 200);
+        scene.add(tankGroup);
+        
+        // --- JEEP ---
+        const jeepGroup = new THREE.Group();
+        
+        const jBodyGeo = new THREE.BoxGeometry(3, 1.5, 5);
+        const jBodyMat = new THREE.MeshStandardMaterial({ color: 0x8B7355 });
+        const jBody = new THREE.Mesh(jBodyGeo, jBodyMat);
+        jBody.position.y = 0.75;
+        jBody.castShadow = true;
+        jBody.receiveShadow = true;
+        jeepGroup.add(jBody);
+        
+        // Wheels
+        const wheelGeo = new THREE.CylinderGeometry(0.8, 0.8, 1, 16);
+        const wheelMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+        
+        [[-1.5, 0.5, -1.5], [1.5, 0.5, -1.5], [-1.5, 0.5, 1.5], [1.5, 0.5, 1.5]].forEach(pos => {
+            const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+            wheel.rotation.z = Math.PI / 2;
+            wheel.position.set(pos[0], pos[1], pos[2]);
+            wheel.castShadow = true;
+            wheel.receiveShadow = true;
+            jeepGroup.add(wheel);
+        });
+        
+        jeepGroup.position.set(50, 0, 180);
+        scene.add(jeepGroup);
+        
+        // --- ENEMIES ---
+        let enemies = [];
+        let bullets = [];
+        let enemyBullets = []; // Enemy bullets
+        let particles = [];
+        
+        // Game state
+        let score = 0;
+        let health = 200;
+        let wave = 1;
+        let gameRunning = false;
+        let inVehicle = false;
+        let currentVehicle = null;
+        let currentWeapon = 0;
+        let ammo = [999, 5, 100, 3];
+        let teamTotalKills = 0;
+        
+        // Movement
+        const moveState = { forward: false, backward: false, left: false, right: false };
+        let playerSpeed = 8;
+        let runSpeed = 12;
+        const PLAYER_RADIUS = 1.2; // used for collision against rocks/gloo walls
+ 
+        // --- GLOO WALL SYSTEM (infinite ammo, FF-style) ---
+        const glooWalls = [];       // placed, solid, opaque gloo walls { mesh, radius }
+        let glooPreviewMesh = null; // translucent preview shown while aiming placement
+        let isPlacingGloo = false;
+        const GLOO_COLOR = 0x3d4f7a;   // matches the icy stone-blue skin
+        const GLOO_GLOW = 0x4fd8ff;    // cyan glow edge, matches the skin art
+        const GLOO_WIDTH = 6, GLOO_HEIGHT = 5, GLOO_DEPTH = 1.2;
+        const GLOO_PLACE_DISTANCE = 5; // how far in front of player it drops
+ 
+        // --- MED KIT SYSTEM ---
+        let isHealing = false;
+        let healStartTime = 0;
+        const MEDKIT_DURATION = 2000; // ms - exactly 2 sec like FF
+        const MEDKIT_HEAL_AMOUNT = 75;
+ 
+        // --- ORION SKILL SYSTEM ---
+        let epValue = 0;              // 0 -> 100, filled fully by a single kill
+        const epMax = 100;
+        let isSkillActive = false;
+        let skillStartTime = 0;
+        const SKILL_DURATION = 3 * 1000; // exactly 3 seconds
+        const ORION_SPEED_MULT = 1.6;
+        const ORION_DAMAGE_MULT = 2;
+        let orionLight = null; // glowing aura light that follows the player while active
+ 
+        // While active the player becomes a moving orb - anything caught in the (2x wider) AOE
+        // loses 75% of its current health
+        const ORION_ORB_RADIUS = 2.2;
+        const ORION_AOE_RADIUS = ORION_ORB_RADIUS * 2; // area of effect = 2x the orb's own radius
+        let orionOrbMesh = null;
+        let orionAoeMesh = null;
+        let orionHitEnemies = new Set();
+ 
+        // --- JUMP / CROUCH / PRONE ---
+        let velocityY = 0;
+        let isGrounded = true;
+        const JUMP_FORCE = 13;
+        const GRAVITY = 28;
+        let stance = 'stand'; // 'stand' | 'crouch' | 'prone'
+        const STANCE = {
+            stand:  { camY: 5,   scaleY: 1,    speedMul: 1 },
+            crouch: { camY: 3,   scaleY: 0.6,  speedMul: 0.5 },
+            prone:  { camY: 1.4, scaleY: 0.3,  speedMul: 0.22 }
+        };
+ 
+        // --- CONTINUOUS FIRE (hold mouse button to keep shooting) ---
+        let isMouseDown = false;
+        let lastPlayerFireTime = 0;
+        const FIRE_INTERVAL = [180, 700, 100, 900]; // ms between shots per weapon: rifle, rocket, mg, grenade
+        
+        // Keyboard
+        const keys = {};
+        let isAutoRunning = false; // Ctrl+Shift+W toggles this on; A/S/D cancels it
+        
+        window.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            
+            if (e.key === 'f' && gameRunning) {
+                toggleVehicle();
+            }
+            
+            if (e.key >= '1' && e.key <= '4') {
+                selectWeapon(parseInt(e.key) - 1);
+            }
+            
+            if (e.key === 'e' && gameRunning && !inVehicle) {
+                pickupWeapon();
+            }
+            
+            if (e.key === 'c' && gameRunning) {
+                orderTeamAttack();
+            }
+ 
+            if (e.key.toLowerCase() === 'g' && gameRunning && !inVehicle && !isHealing) {
+                toggleGlooPlacement();
+            }
+ 
+            if (e.key.toLowerCase() === 'm' && gameRunning && !inVehicle) {
+                useMedkit();
+            }
+ 
+            if (e.code === 'Space' && gameRunning && !inVehicle && !isHealing && isGrounded) {
+                velocityY = JUMP_FORCE;
+                isGrounded = false;
+                stance = 'stand'; // auto stand up to jump
+            }
+ 
+            if (e.key.toLowerCase() === 'v' && gameRunning && !inVehicle && !isHealing && isGrounded) {
+                stance = (stance === 'crouch') ? 'stand' : 'crouch';
+            }
+ 
+            if (e.key.toLowerCase() === 'b' && gameRunning && !inVehicle && !isHealing && isGrounded) {
+                stance = (stance === 'prone') ? 'stand' : 'prone';
+            }
+ 
+            if (e.key.toLowerCase() === 'h' && gameRunning) {
+                toggleOrionSkill();
+            }
+ 
+            if (e.key === 'Delete' && gameRunning) {
+                clearAllGlooWalls();
+            }
+ 
+            if (e.key.toLowerCase() === 'o' && gameRunning && !inVehicle) {
+                reviveNearbyTeammate();
+            }
+ 
+            // AUTO-RUN: Ctrl+Shift+W starts continuous forward running.
+            // It keeps going by itself until A, S or D is pressed.
+            if (e.key.toLowerCase() === 'w' && e.shiftKey && e.ctrlKey && gameRunning && !isHealing && !isAutoRunning) {
+                isAutoRunning = true;
+                moveState.forward = true;
+                addCombatLog("🏃 Auto-run ON! Press A/S/D to stop.");
+            }
+ 
+            if (isAutoRunning && ['a', 's', 'd'].includes(e.key.toLowerCase())) {
+                isAutoRunning = false;
+                moveState.forward = false;
+            }
+            
+            // Movement keys (blocked while healing, so player stops using medkit)
+            // NOTE: A/D (and W/S) keep working normally during the Orion skill - the skill
+            // does not lock movement, only med kit does.
+            if (!isHealing) {
+                switch(e.key.toLowerCase()) {
+                    case 'w': moveState.forward = true; break;
+                    case 's': moveState.backward = true; break;
+                    case 'a': moveState.left = true; break;
+                    case 'd': moveState.right = true; break;
+                }
+            }
+            
+            // Prevent default
+            if (['w','a','s','d','f','e','c','g','m','v','b','h','o','delete',' ','shift','control','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+            
+            switch(e.key.toLowerCase()) {
+                case 'w': if (!isAutoRunning) moveState.forward = false; break;
+                case 's': moveState.backward = false; break;
+                case 'a': moveState.left = false; break;
+                case 'd': moveState.right = false; break;
+            }
+        });
+        
+        // Mouse click to fire (or place gloo wall if in placement mode). Hold to keep firing.
+        window.addEventListener('mousedown', (e) => {
+            if (e.button === 0 && gameRunning && controls.isLocked) {
+                if (isPlacingGloo) {
+                    placeGlooWall();
+                } else {
+                    isMouseDown = true;
+                    fireBullet(); // fire immediately on click, then auto-repeat while held
+                    lastPlayerFireTime = performance.now();
+                }
+            }
+        });
+ 
+        window.addEventListener('mouseup', (e) => {
+            if (e.button === 0) isMouseDown = false;
+        });
+        
+        // Weapon selection
+        window.selectWeapon = function(weaponIndex) {
+            currentWeapon = weaponIndex;
+            document.querySelectorAll('.weapon-slot').forEach((slot, i) => {
+                if (i === weaponIndex) slot.classList.add('active');
+                else slot.classList.remove('active');
+            });
+            updateWeaponStatus();
+        };
+        
+        // Update weapon status
+        function updateWeaponStatus() {
+            document.getElementById('weaponStatus').innerHTML = 
+                `Weapon: ${getWeaponName(currentWeapon)} (${ammo[currentWeapon]})`;
+            document.getElementById('rocketAmmo').textContent = ammo[1];
+            document.getElementById('mgAmmo').textContent = ammo[2];
+            document.getElementById('grenadeAmmo').textContent = ammo[3];
+        }
+        
+        function getWeaponName(type) {
+            return ['MP5', 'M79', 'M60', 'Grenade'][type];
+        }
+        
+        // Pickup weapon
+        function pickupWeapon() {
+            const playerPos = playerGroup.position;
+            
+            weaponsOnGround.forEach((weapon, index) => {
+                const dist = playerPos.distanceTo(weapon.mesh.position);
+                if (dist < 5) {
+                    ammo[weapon.type] += weapon.ammo;
+                    scene.remove(weapon.mesh);
+                    weaponsOnGround.splice(index, 1);
+                    addCombatLog(`Picked up ${getWeaponName(weapon.type)}!`);
+                    updateWeaponStatus();
+                }
+            });
+        }
+        
+        // ===================== GLOO WALL SYSTEM =====================
+        // Infinite ammo - never decremented, always shows ∞
+ 
+        function createGlooMesh(opacity, opaque) {
+            const group = new THREE.Group();
+ 
+            const bodyGeo = new THREE.BoxGeometry(GLOO_WIDTH, GLOO_HEIGHT, GLOO_DEPTH);
+            const bodyMat = new THREE.MeshStandardMaterial({
+                color: GLOO_COLOR,
+                transparent: true,
+                opacity: opacity,
+                emissive: GLOO_GLOW,
+                emissiveIntensity: opaque ? 0.25 : 0.6,
+                roughness: 0.6,
+                metalness: 0.2,
+                depthWrite: opaque
+            });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.castShadow = opaque;
+            body.receiveShadow = opaque;
+            group.add(body);
+ 
+            // Glowing cyan edge outline (like the skin art)
+            const edgeGeo = new THREE.EdgesGeometry(bodyGeo);
+            const edgeMat = new THREE.LineBasicMaterial({ color: GLOO_GLOW, transparent: true, opacity: opaque ? 0.9 : 0.7 });
+            const edges = new THREE.LineSegments(edgeGeo, edgeMat);
+            group.add(edges);
+ 
+            group.userData.bodyMat = bodyMat;
+            return group;
+        }
+ 
+        // Toggle the translucent preview on/off (press G)
+        window.toggleGlooPlacement = function() {
+            if (!gameRunning || inVehicle) return;
+ 
+            isPlacingGloo = !isPlacingGloo;
+ 
+            if (isPlacingGloo) {
+                glooPreviewMesh = createGlooMesh(0.35, false);
+                scene.add(glooPreviewMesh);
+                document.getElementById('glooSlot').classList.add('active');
+                addCombatLog("🧊 Gloo Wall aim mode - click to place!");
+            } else {
+                if (glooPreviewMesh) {
+                    scene.remove(glooPreviewMesh);
+                    glooPreviewMesh = null;
+                }
+                document.getElementById('glooSlot').classList.remove('active');
+            }
+        };
+ 
+        // Called every frame while aiming: preview follows player facing direction, and
+        // snaps flush against a nearby gloo wall so walls line up edge-to-edge (no gaps)
+        function updateGlooPreview() {
+            if (!isPlacingGloo || !glooPreviewMesh) return;
+ 
+            const dir = new THREE.Vector3();
+            camera.getWorldDirection(dir);
+            dir.y = 0;
+            dir.normalize();
+ 
+            const dropPos = playerGroup.position.clone().add(dir.clone().multiplyScalar(GLOO_PLACE_DISTANCE));
+            dropPos.y = GLOO_HEIGHT / 2;
+ 
+            glooPreviewMesh.position.copy(dropPos);
+            glooPreviewMesh.rotation.y = Math.atan2(dir.x, dir.z);
+ 
+            // Adjust preview color: red-ish tint if blocked (overlapping a rock/building/another wall)
+            const blocked = glooWalls.some(w => w.mesh.position.distanceTo(dropPos) < GLOO_WIDTH * 0.8) ||
+                             rockColliders.some(r => r.mesh.position.distanceTo(dropPos) < r.radius + 2.5) ||
+                             buildingColliders.some(b => b.mesh.position.distanceTo(dropPos) < b.radius + 2.5);
+ 
+            glooPreviewMesh.userData.bodyMat.color.set(blocked ? 0xff4444 : GLOO_COLOR);
+            glooPreviewMesh.userData.blocked = blocked;
+        }
+ 
+        // Shared deploy helper: drops a solid opaque gloo wall at a given position/rotation.
+        // Used by the player's placeGlooWall(), and also by teammate/enemy AI for cover.
+        function deployGlooWall(position, rotY) {
+            const wall = createGlooMesh(1, true); // fully opaque, same color/skin
+            wall.position.copy(position);
+            wall.rotation.y = rotY;
+            wall.scale.set(0.05, 0.05, 0.05); // pop-in animation start
+            scene.add(wall);
+ 
+            const collider = {
+                mesh: wall,
+                radius: Math.max(GLOO_WIDTH, GLOO_DEPTH) * 0.55, // solid + blocks bullets (cover)
+                health: 100, // breaks after enough hits (10 dmg per bullet)
+                maxHealth: 100,
+                isGloo: true
+            };
+            glooWalls.push(collider);
+ 
+            // 0.1 sec pop-in scale animation, exactly like Free Fire's instant deploy
+            const start = performance.now();
+            function popIn() {
+                const t = Math.min((performance.now() - start) / 100, 1); // 0.1 sec
+                const s = 0.05 + 0.95 * t;
+                wall.scale.set(s, 1, s);
+                if (t < 1) requestAnimationFrame(popIn);
+                else wall.scale.set(1, 1, 1);
+            }
+            popIn();
+ 
+            return collider;
+        }
+ 
+        // Instantly drops a solid opaque gloo wall (0.1s pop-in, like FF)
+        window.placeGlooWall = function() {
+            if (!isPlacingGloo || !glooPreviewMesh || glooPreviewMesh.userData.blocked) return;
+ 
+            deployGlooWall(glooPreviewMesh.position, glooPreviewMesh.rotation.y);
+ 
+            addCombatLog("🧊 Gloo Wall deployed!");
+            // Ammo is infinite - stay in placement mode until the player presses G again
+            // (reuse the same preview mesh, just reset it so it can be re-aimed for the next wall)
+            if (glooPreviewMesh) glooPreviewMesh.userData.blocked = false;
+        };
+ 
+        // ===================== MED KIT SYSTEM =====================
+        window.useMedkit = function() {
+            if (!gameRunning || inVehicle || isHealing || health >= 100) return;
+ 
+            isHealing = true;
+            healStartTime = performance.now();
+ 
+            // Stop the player dead in their tracks while healing
+            moveState.forward = false;
+            moveState.backward = false;
+            moveState.left = false;
+            moveState.right = false;
+            isAutoRunning = false;
+ 
+            // Cancel gloo placement if it was active
+            if (isPlacingGloo) toggleGlooPlacement();
+ 
+            document.getElementById('medkitTimer').style.display = 'block';
+            addCombatLog("💊 Using Med Kit...");
+        };
+ 
+        // Called every frame while healing: updates the sec.millisecond countdown
+        function updateMedkitTimer() {
+            if (!isHealing) return;
+ 
+            const elapsed = performance.now() - healStartTime;
+            const remaining = Math.max(0, MEDKIT_DURATION - elapsed);
+            document.getElementById('medkitTimerValue').textContent = (remaining / 1000).toFixed(3);
+ 
+            if (elapsed >= MEDKIT_DURATION) {
+                isHealing = false;
+                document.getElementById('medkitTimer').style.display = 'none'; // vanish instantly when done
+ 
+                health = Math.min(100, health + MEDKIT_HEAL_AMOUNT);
+                document.getElementById('health').textContent = health;
+                document.getElementById('healthFill').style.width = health + '%';
+                addCombatLog("❤️ Healed up!");
+            }
+        }
+ 
+        // Instantly removes every placed gloo wall (Delete key)
+        window.clearAllGlooWalls = function() {
+            if (glooWalls.length === 0) return;
+            glooWalls.forEach(w => scene.remove(w.mesh));
+            glooWalls.length = 0;
+            addCombatLog("🗑️ All Gloo Walls cleared!");
+        };
+ 
+        // ===================== ORION SKILL (EP-based ultimate) =====================
+        function updateEpBar() {
+            const pct = (epValue / epMax) * 100;
+            document.getElementById('epFill').style.width = pct + '%';
+            document.getElementById('epText').textContent = Math.round(epValue) + '/' + epMax;
+            document.getElementById('epFill').classList.toggle('ready', epValue >= epMax && !isSkillActive);
+            document.getElementById('orionSlot').classList.toggle('active', epValue >= epMax && !isSkillActive);
+        }
+ 
+        // Press H: activates the skill at full EP, or cancels it early if already active
+        window.toggleOrionSkill = function() {
+            if (!gameRunning) return;
+ 
+            if (isSkillActive) {
+                // Cancel mid-way, as requested
+                deactivateOrionSkill();
+                addCombatLog("🌌 Orion skill cancelled.");
+                return;
+            }
+ 
+            if (epValue < epMax) {
+                addCombatLog("🌌 Orion needs 100 EP - get a kill first!");
+                return;
+            }
+ 
+            isSkillActive = true;
+            skillStartTime = performance.now();
+            document.getElementById('orionStatus').style.display = 'block';
+ 
+            // Glowing aura light that follows the player while the skill is active
+            orionLight = new THREE.PointLight(0x7b2ff7, 3, 15);
+            orionLight.position.copy(playerGroup.position);
+            orionLight.position.y += 3;
+            scene.add(orionLight);
+ 
+            // Transform the player into a moving orb of light with a 2x-radius damage aura
+            body.visible = false;
+            head.visible = false;
+ 
+            orionOrbMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(ORION_ORB_RADIUS, 24, 24),
+                new THREE.MeshStandardMaterial({
+                    color: 0x7b2ff7,
+                    emissive: 0x9b4dff,
+                    emissiveIntensity: 1.3,
+                    transparent: true,
+                    opacity: 0.9
+                })
+            );
+            orionOrbMesh.position.y = ORION_ORB_RADIUS;
+            playerGroup.add(orionOrbMesh);
+ 
+            orionAoeMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(ORION_AOE_RADIUS, 24, 24),
+                new THREE.MeshBasicMaterial({
+                    color: 0x4fd8ff,
+                    transparent: true,
+                    opacity: 0.12,
+                    wireframe: true
+                })
+            );
+            orionAoeMesh.position.y = ORION_ORB_RADIUS;
+            playerGroup.add(orionAoeMesh);
+ 
+            orionHitEnemies.clear();
+ 
+            addCombatLog("🌌 ORION UNLEASHED! You are an orb - anything caught in your aura loses 75% HP!");
+        };
+ 
+        function deactivateOrionSkill() {
+            isSkillActive = false;
+            epValue = 0;
+            updateEpBar();
+            document.getElementById('orionStatus').style.display = 'none';
+            if (orionLight) {
+                scene.remove(orionLight);
+                orionLight = null;
+            }
+ 
+            // Revert from orb back to the normal soldier model
+            if (orionOrbMesh) { playerGroup.remove(orionOrbMesh); orionOrbMesh = null; }
+            if (orionAoeMesh) { playerGroup.remove(orionAoeMesh); orionAoeMesh = null; }
+            body.visible = true;
+            head.visible = true;
+            orionHitEnemies.clear();
+        }
+ 
+        // Any enemy caught inside the orb's AOE (2x the orb's own radius) loses 75% of its current HP.
+        // Each enemy is only hit once per activation, so it isn't insta-deleted every frame.
+        function updateOrionAOE() {
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const enemy = enemies[i];
+                const dist = playerGroup.position.distanceTo(enemy.mesh.position);
+                if (dist < ORION_AOE_RADIUS && !orionHitEnemies.has(enemy)) {
+                    orionHitEnemies.add(enemy);
+                    enemy.health -= enemy.health * 0.75; // -75% HP
+                    createExplosion(enemy.mesh.position, 0.8);
+ 
+                    if (enemy.health <= 0) {
+                        createExplosion(enemy.mesh.position, 1.5);
+                        scene.remove(enemy.mesh);
+                        enemies.splice(i, 1);
+                        score += 10;
+                        document.getElementById('score').textContent = score;
+                        addCombatLog("🌌 Orion vaporized an enemy!");
+                        updateEnemyCount();
+                    } else {
+                        addCombatLog("🌌 Orion scorched an enemy! (-75% HP)");
+                    }
+                }
+            }
+        }
+ 
+        // Called every frame: drains EP from 100 -> 0 across exactly 3 seconds, then auto-ends
+        function updateOrionSkill() {
+            if (!isSkillActive) return;
+ 
+            const elapsed = performance.now() - skillStartTime;
+            const remaining = Math.max(0, SKILL_DURATION - elapsed);
+            epValue = (remaining / SKILL_DURATION) * epMax;
+            updateEpBar();
+ 
+            const totalSec = Math.ceil(remaining / 1000);
+            const m = Math.floor(totalSec / 60);
+            const s = totalSec % 60;
+            document.getElementById('orionTimeLeft').textContent = m + ':' + String(s).padStart(2, '0');
+ 
+            if (orionLight) {
+                orionLight.position.copy(playerGroup.position);
+                orionLight.position.y += 3;
+                orionLight.intensity = 2.5 + Math.sin(performance.now() / 100) * 0.8; // pulsing glow
+            }
+ 
+            updateOrionAOE();
+ 
+            if (elapsed >= SKILL_DURATION) {
+                deactivateOrionSkill();
+                addCombatLog("🌌 Orion faded away.");
+            }
+        }
+ 
+        // ===================== COLLISION (rocks, buildings + gloo walls are solid) =====================
+        // Push the player back out of any rock/building/gloo wall they're overlapping
+        function resolvePlayerCollisions(targetPos) {
+            const allColliders = rockColliders.concat(buildingColliders, glooWalls);
+            for (const c of allColliders) {
+                const dx = targetPos.x - c.mesh.position.x;
+                const dz = targetPos.z - c.mesh.position.z;
+                const dist = Math.sqrt(dx * dx + dz * dz);
+                const minDist = c.radius + PLAYER_RADIUS;
+                if (dist < minDist && dist > 0.0001) {
+                    const push = (minDist - dist);
+                    targetPos.x += (dx / dist) * push;
+                    targetPos.z += (dz / dist) * push;
+                }
+            }
+            return targetPos;
+        }
+ 
+        // True if a bullet at this position is stopped by a rock, building, or gloo wall (cover blocks shots).
+        // Gloo walls take 10 damage per bullet and shatter once their health runs out.
+        const GLOO_BULLET_DAMAGE = 10;
+        function isBulletBlocked(position) {
+            for (const c of rockColliders) {
+                if (position.distanceTo(c.mesh.position) < c.radius) return true; // rocks are indestructible
+            }
+            for (const c of buildingColliders) {
+                if (position.distanceTo(c.mesh.position) < c.radius) return true; // houses/factory are indestructible
+            }
+            for (let i = glooWalls.length - 1; i >= 0; i--) {
+                const c = glooWalls[i];
+                if (position.distanceTo(c.mesh.position) < c.radius) {
+                    c.health -= GLOO_BULLET_DAMAGE;
+                    // Flash/darken the wall a bit as it takes damage
+                    const t = Math.max(c.health, 0) / c.maxHealth;
+                    c.mesh.userData.bodyMat.opacity = 0.55 + 0.45 * t;
+                    if (c.health <= 0) {
+                        createExplosion(c.mesh.position, 1.2);
+                        scene.remove(c.mesh);
+                        glooWalls.splice(i, 1);
+                        addCombatLog("🧊 Gloo Wall destroyed!");
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+ 
+        // ===================== SAFE ZONE UPDATE =====================
+        // Called every frame: shrinks the zone through its 4 stages and damages the player if outside
+        function updateSafeZone() {
+            const now = performance.now();
+ 
+            if (!zoneIsShrinking && zonePhase < ZONE_RADII.length - 1) {
+                const elapsed = now - zonePhaseStartTime;
+                if (elapsed >= ZONE_DURATIONS[zonePhase]) {
+                    zoneIsShrinking = true;
+                    zoneShrinkStartTime = now;
+                    zoneTargetRadius = ZONE_RADII[zonePhase + 1];
+                    addCombatLog(`⚠️ Safe Zone is shrinking! Get to Zone ${zonePhase + 2}!`);
+                }
+            }
+ 
+            if (zoneIsShrinking) {
+                const t = Math.min((now - zoneShrinkStartTime) / ZONE_SHRINK_TIME, 1);
+                zoneCurrentRadius = ZONE_RADII[zonePhase] + (zoneTargetRadius - ZONE_RADII[zonePhase]) * t;
+                if (t >= 1) {
+                    zoneIsShrinking = false;
+                    zonePhase++;
+                    zoneCurrentRadius = zoneTargetRadius;
+                    zonePhaseStartTime = now;
+                    addCombatLog(`🗺️ Now in Zone ${zonePhase + 1}/4`);
+                }
+            }
+ 
+            zoneRing.scale.set(zoneCurrentRadius, zoneCurrentRadius, 1);
+            zoneWall.scale.set(zoneCurrentRadius, 1, zoneCurrentRadius);
+ 
+            // HUD text
+            const label = document.getElementById('zoneLabel');
+            const timerEl = document.getElementById('zoneTimer');
+            label.textContent = `Zone ${zonePhase + 1}/4` + (zoneIsShrinking ? ' (Shrinking!)' : '');
+            if (zoneIsShrinking) {
+                timerEl.textContent = 'NOW';
+            } else if (zonePhase >= ZONE_RADII.length - 1) {
+                timerEl.textContent = 'FINAL';
+            } else {
+                const remaining = Math.max(0, ZONE_DURATIONS[zonePhase] - (now - zonePhaseStartTime));
+                const totalSec = Math.ceil(remaining / 1000);
+                timerEl.textContent = Math.floor(totalSec / 60) + ':' + String(totalSec % 60).padStart(2, '0');
+            }
+ 
+            // Damage if the player is outside the current safe zone
+            if (!inVehicle && gameRunning) {
+                const dx = playerGroup.position.x - SAFE_ZONE_CENTER.x;
+                const dz = playerGroup.position.z - SAFE_ZONE_CENTER.z;
+                const distFromCenter = Math.sqrt(dx * dx + dz * dz);
+                const outside = distFromCenter > zoneCurrentRadius;
+                document.getElementById('zoneWarning').style.display = outside ? 'block' : 'none';
+ 
+                if (outside && !isSkillActive) {
+                    zoneDamageAccum += 16; // ~1 frame at 60fps
+                    if (zoneDamageAccum >= 1000) {
+                        zoneDamageAccum = 0;
+                        health -= ZONE_DAMAGE_PER_SEC;
+                        document.getElementById('health').textContent = health;
+                        document.getElementById('healthFill').style.width = Math.max(0, health) + '%';
+                        if (health <= 0) gameOver();
+                    }
+                }
+            } else {
+                document.getElementById('zoneWarning').style.display = 'none';
+            }
+        }
+ 
+        // ===================== MATCH TIMER =====================
+        // Called every frame: 15 minute match, final minute = sudden death, survive to win
+        function updateMatchTimer() {
+            if (matchEnded || !gameRunning) return;
+ 
+            const elapsed = performance.now() - matchStartTime;
+            const remaining = Math.max(0, MATCH_DURATION - elapsed);
+ 
+            const totalSec = Math.ceil(remaining / 1000);
+            document.getElementById('matchTimeLeft').textContent =
+                Math.floor(totalSec / 60) + ':' + String(totalSec % 60).padStart(2, '0');
+ 
+            isFinalMinute = remaining <= FINAL_MINUTE && remaining > 0;
+            document.getElementById('finalMinuteWarning').style.display = isFinalMinute ? 'block' : 'none';
+ 
+            if (remaining <= 0) {
+                winGame(); // survived the full 15 minutes - congratulations!
+            }
+        }
+ 
+        // Player survived the whole 15-minute match
+        function winGame() {
+            if (matchEnded) return;
+            matchEnded = true;
+            gameRunning = false;
+            try { controls.unlock(); } catch (err) { /* ignore */ }
+ 
+            document.getElementById('gameEndTitle').textContent = '🎉 CONGRATULATIONS! 🎉';
+            document.getElementById('gameEndTitle').style.color = '#4fff6a';
+            document.getElementById('gameEndMsg').textContent =
+                `You survived the full 15 minutes, ${playerName}! Final Score: ${score}`;
+            document.getElementById('gameEndScreen').style.display = 'flex';
+            addCombatLog("🎉 CONGRATULATIONS! You won the match!");
+        }
+ 
+        // Order team to attack
+        function orderTeamAttack() {
+            if (enemies.length > 0) {
+                teammates.forEach(mate => {
+                    if (mate.isAlive) {
+                        mate.targetEnemy = enemies[Math.floor(Math.random() * enemies.length)];
+                    }
+                });
+                addCombatLog("Team ordered to attack! ⚔️");
+            }
+        }
+ 
+        // Press O near a knocked-down teammate to revive them
+        const REVIVE_RANGE = 6;
+        function reviveNearbyTeammate() {
+            let target = null, closestDist = REVIVE_RANGE;
+            teammates.forEach(mate => {
+                if (!mate.isKnocked) return;
+                const d = playerGroup.position.distanceTo(mate.mesh.position);
+                if (d < closestDist) { closestDist = d; target = mate; }
+            });
+ 
+            if (!target) {
+                addCombatLog("No knocked teammate nearby to revive.");
+                return;
+            }
+ 
+            target.isKnocked = false;
+            target.health = 50;
+            target.mesh.scale.set(1, 1, 1);
+            addCombatLog(`💚 You revived ${target.name}!`);
+        }
+        
+        // Toggle vehicle
+        function toggleVehicle() {
+            const playerPos = playerGroup.position;
+            const tankDist = playerPos.distanceTo(tankGroup.position);
+            const jeepDist = playerPos.distanceTo(jeepGroup.position);
+            
+            if (!inVehicle && tankDist < 8) {
+                inVehicle = true;
+                currentVehicle = 'tank';
+                playerGroup.visible = false;
+                document.getElementById('inVehicleStatus').innerHTML = '🟢 IN TANK';
+                document.getElementById('vehicle').textContent = 'Tank';
+                addCombatLog("Entered Tank! 🚜");
+            } 
+            else if (!inVehicle && jeepDist < 8) {
+                inVehicle = true;
+                currentVehicle = 'jeep';
+                playerGroup.visible = false;
+                document.getElementById('inVehicleStatus').innerHTML = '🟢 IN JEEP';
+                document.getElementById('vehicle').textContent = 'Jeep';
+                addCombatLog("Entered Jeep! 🚙");
+            }
+            else if (inVehicle) {
+                inVehicle = false;
+                currentVehicle = null;
+                playerGroup.position.copy(currentVehicle === 'tank' ? tankGroup.position : jeepGroup.position);
+                playerGroup.visible = true;
+                document.getElementById('inVehicleStatus').innerHTML = '⚪ ON FOOT';
+                document.getElementById('vehicle').textContent = 'None';
+                addCombatLog("Exited vehicle 🚶");
+            }
+        }
+        
+        // Fire bullet
+        function fireBullet() {
+            if (!gameRunning) return;
+ 
+            // Firing your weapon breaks the Orion orb form - you can't shoot while you're a ball of light
+            if (isSkillActive) {
+                deactivateOrionSkill();
+                addCombatLog("🌌 Orion interrupted - back to combat!");
+                return;
+            }
+ 
+            if (ammo[currentWeapon] <= 0) {
+                addCombatLog("No ammo!");
+                return;
+            }
+            
+            ammo[currentWeapon]--;
+            updateWeaponStatus();
+            
+            const bulletGeo = new THREE.SphereGeometry(
+                currentWeapon === 1 ? 0.8 : 0.3, 
+                8
+            );
+            const bulletMat = new THREE.MeshStandardMaterial({ 
+                color: currentWeapon === 1 ? 0xFF5500 : 0xFFD700,
+                emissive: currentWeapon === 1 ? 0xFF2200 : 0xFFAA00
+            });
+            const bullet = new THREE.Mesh(bulletGeo, bulletMat);
+            
+            const direction = new THREE.Vector3();
+            camera.getWorldDirection(direction);
+            
+            if (inVehicle) {
+                const vehicle = currentVehicle === 'tank' ? tankGroup : jeepGroup;
+                bullet.position.copy(vehicle.position);
+                bullet.position.y += 2;
+                bullet.position.add(direction.multiplyScalar(3));
+            } else {
+                bullet.position.copy(camera.position);
+                bullet.position.add(direction.multiplyScalar(2));
+            }
+            
+            bullet.castShadow = true;
+            scene.add(bullet);
+ 
+            const baseDamage = currentWeapon === 1 ? 3 : (currentWeapon === 3 ? 5 : 1);
+            
+            bullets.push({
+                mesh: bullet,
+                direction: direction.clone(),
+                speed: currentWeapon === 1 ? 2 : 1,
+                damage: isSkillActive ? baseDamage * ORION_DAMAGE_MULT : baseDamage,
+                distance: 0,
+                maxDistance: 200,
+                owner: 'player'
+            });
+        }
+        
+        // Enemy fire
+        function enemyFire(enemy) {
+            if (!gameRunning) return;
+            
+            const now = Date.now();
+            if (now - enemy.lastFireTime < 1500) return;
+            enemy.lastFireTime = now;
+            
+            const bulletGeo = new THREE.SphereGeometry(0.3, 8);
+            const bulletMat = new THREE.MeshStandardMaterial({ color: 0xFF0000, emissive: 0x440000 });
+            const bullet = new THREE.Mesh(bulletGeo, bulletMat);
+            
+            bullet.position.copy(enemy.mesh.position);
+            bullet.position.y += 2;
+            
+            // Target player
+            const targetPos = inVehicle ? 
+                (currentVehicle === 'tank' ? tankGroup.position : jeepGroup.position) : 
+                playerGroup.position;
+            
+            const direction = new THREE.Vector3().subVectors(targetPos, bullet.position).normalize();
+            
+            bullet.castShadow = true;
+            scene.add(bullet);
+            
+            enemyBullets.push({
+                mesh: bullet,
+                direction: direction,
+                speed: 0.8,
+                damage: 4,
+                distance: 0,
+                maxDistance: 100
+            });
+        }
+        
+        // Team mate fire
+        function teamFire(mate) {
+            if (!gameRunning || !mate.isAlive || !mate.targetEnemy) return;
+            
+            const now = Date.now();
+            if (now - mate.lastFireTime < mate.fireRate) return;
+            mate.lastFireTime = now;
+            
+            // Check accuracy
+            if (Math.random() > mate.accuracy) return;
+            
+            const bulletGeo = new THREE.SphereGeometry(0.3, 8);
+            const bulletMat = new THREE.MeshStandardMaterial({ color: 0x00FF00, emissive: 0x004400 });
+            const bullet = new THREE.Mesh(bulletGeo, bulletMat);
+            
+            bullet.position.copy(mate.mesh.position);
+            bullet.position.y += 2;
+            
+            const direction = new THREE.Vector3().subVectors(mate.targetEnemy.mesh.position, bullet.position).normalize();
+            
+            bullet.castShadow = true;
+            scene.add(bullet);
+            
+            bullets.push({
+                mesh: bullet,
+                direction: direction,
+                speed: 1,
+                damage: 1,
+                distance: 0,
+                maxDistance: 150,
+                owner: 'teammate',
+                mate: mate
+            });
+        }
+        
+        // Spawn enemy
+        function spawnEnemy() {
+            if (!gameRunning) return;
+            
+            const enemyGroup = new THREE.Group();
+            
+            // Body
+            const bodyGeo = new THREE.BoxGeometry(2, 3, 2);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8B0000 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 1.5;
+            body.castShadow = true;
+            enemyGroup.add(body);
+            
+            // Head
+            const headGeo = new THREE.SphereGeometry(1);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xCD853F });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 3.5;
+            head.castShadow = true;
+            enemyGroup.add(head);
+            
+            // Pakistani flag
+            const flagGeo = new THREE.BoxGeometry(0.8, 0.4, 0.1);
+            const flagMat = new THREE.MeshStandardMaterial({ color: 0x01411C });
+            const flag = new THREE.Mesh(flagGeo, flagMat);
+            flag.position.set(0, 4.5, -1);
+            flag.castShadow = true;
+            enemyGroup.add(flag);
+            
+            // Random position (far away)
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 200 + Math.random() * 150;
+            enemyGroup.position.set(
+                playerGroup.position.x + Math.cos(angle) * radius,
+                0,
+                playerGroup.position.z + Math.sin(angle) * radius
+            );
+            
+            scene.add(enemyGroup);
+            
+            enemies.push({
+                mesh: enemyGroup,
+                health: 2 + Math.floor(wave / 2),
+                maxHealth: 2 + Math.floor(wave / 2),
+                speed: 0.15 + (wave * 0.02),
+                damage: 1,
+                lastFireTime: 0,
+                lastGlooTime: 0,
+                target: null
+            });
+            
+            updateEnemyCount();
+        }
+        
+        function updateEnemyCount() {
+            document.getElementById('enemyCount').textContent = enemies.length;
+            document.getElementById('enemyAlert').innerHTML = `⚠️ Enemies nearby: ${enemies.length}`;
+        }
+        
+        // Create explosion
+        function createExplosion(position, size = 1) {
+            for (let i = 0; i < 20; i++) {
+                const particleGeo = new THREE.SphereGeometry(0.2 * size, 4);
+                const particleMat = new THREE.MeshStandardMaterial({ 
+                    color: Math.random() * 0xFFAA00,
+                    emissive: 0xFF4400
+                });
+                const particle = new THREE.Mesh(particleGeo, particleMat);
+                particle.position.copy(position);
+                scene.add(particle);
+                
+                particles.push({
+                    mesh: particle,
+                    velocity: new THREE.Vector3(
+                        (Math.random() - 0.5) * 1.5 * size,
+                        Math.random() * 1.5 * size,
+                        (Math.random() - 0.5) * 1.5 * size
+                    ),
+                    life: 40
+                });
+            }
+        }
+        
+        // Add combat log
+        function addCombatLog(message) {
+            const logDiv = document.getElementById('logMessages');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `> ${new Date().toLocaleTimeString()} - ${message}`;
+            logDiv.appendChild(entry);
+            
+            // Keep only last 10 messages
+            while (logDiv.children.length > 100) {
+                logDiv.removeChild(logDiv.firstChild);
+            }
+        }
+        
+        // Update teammate UI
+        function updateTeammateUI() {
+            const container = document.getElementById('teammatesList');
+            let html = '';
+            
+            teammates.forEach(mate => {
+                const healthPercent = (mate.health / mate.maxHealth) * 100;
+                html += `
+                    <div class="teammate">
+                        <span>👤 ${mate.name}${mate.isKnocked ? ' 🆘' : ''}</span>
+                        <div class="teammate-health" style="width: ${healthPercent}%; background: ${mate.isKnocked ? '#ff3333' : (healthPercent > 50 ? '#00ff00' : '#ffaa00')}"></div>
+                        <span class="teammate-kills">${mate.isKnocked ? 'KNOCKED' : mate.kills}</span>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            document.getElementById('teamKills').innerHTML = `Team Kills: ${teamTotalKills}`;
+        }
+        
+        // Update mini map
+        function updateMiniMap() {
+            const canvas = document.getElementById('mapCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 220, 220);
+            
+            // Background
+            ctx.fillStyle = '#2d5a27';
+            ctx.fillRect(0, 0, 220, 220);
+            
+            // Border line
+            ctx.strokeStyle = '#ffaa00';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, 160);
+            ctx.lineTo(220, 160);
+            ctx.stroke();
+            
+            // Scale factor
+            const scale = 0.2;
+ 
+            // Safe Zone circle (shrinking storm boundary)
+            ctx.strokeStyle = zoneIsShrinking ? '#ff5c5c' : '#4fd8ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(110 + SAFE_ZONE_CENTER.x * scale, 110 - SAFE_ZONE_CENTER.z * scale, zoneCurrentRadius * scale, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Player
+            const playerX = 110 + (playerGroup.position.x * scale);
+            const playerY = 110 - (playerGroup.position.z * scale);
+            
+            ctx.fillStyle = '#00ff00';
+            ctx.beginPath();
+            ctx.arc(playerX, playerY, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Team mates
+            ctx.fillStyle = '#00aaff';
+            teammates.forEach(mate => {
+                if (mate.isAlive) {
+                    ctx.beginPath();
+                    ctx.arc(110 + (mate.mesh.position.x * scale), 110 - (mate.mesh.position.z * scale), 4, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            });
+            
+            // Enemies
+            ctx.fillStyle = '#ff0000';
+            enemies.forEach(enemy => {
+                ctx.beginPath();
+                ctx.arc(110 + (enemy.mesh.position.x * scale), 110 - (enemy.mesh.position.z * scale), 3, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Vehicles
+            ctx.fillStyle = '#0000ff';
+            [tankGroup, jeepGroup].forEach(v => {
+                ctx.beginPath();
+                ctx.arc(110 + (v.position.x * scale), 110 - (v.position.z * scale), 4, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Weapons
+            ctx.fillStyle = '#ffaa00';
+            weaponsOnGround.forEach(w => {
+                ctx.beginPath();
+                ctx.arc(110 + (w.mesh.position.x * scale), 110 - (w.mesh.position.z * scale), 2, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        }
+        
+        // Game loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (gameRunning) {
+                // PLAYER MOVEMENT - FIXED!
+                if (controls.isLocked) {
+                    // Get camera direction
+                    const cameraDir = new THREE.Vector3();
+                    camera.getWorldDirection(cameraDir);
+                    cameraDir.y = 0;
+                    cameraDir.normalize();
+                    
+                    // Calculate movement speed (stance affects speed: crouch/prone slow you down)
+                    const stanceInfo = STANCE[stance];
+                    const baseSpeed = ((keys['shift'] || isAutoRunning) && !inVehicle) ? runSpeed : (inVehicle ? 10 : playerSpeed);
+                    const orionMul = isSkillActive ? ORION_SPEED_MULT : 1;
+                    const speed = inVehicle ? baseSpeed : baseSpeed * stanceInfo.speedMul * orionMul;
+                    
+                    // Move player based on keys (frozen while using med kit)
+                    if (!isHealing) {
+                        if (moveState.forward) {
+                            playerGroup.position.x += cameraDir.x * speed * 0.15;
+                            playerGroup.position.z += cameraDir.z * speed * 0.15;
+                        }
+                        if (moveState.backward) {
+                            playerGroup.position.x -= cameraDir.x * speed * 0.15;
+                            playerGroup.position.z -= cameraDir.z * speed * 0.15;
+                        }
+                        if (moveState.left) {
+                            const leftDir = new THREE.Vector3(-cameraDir.z, 0, cameraDir.x);
+                            playerGroup.position.x += leftDir.x * speed * 0.15;
+                            playerGroup.position.z += leftDir.z * speed * 0.15;
+                        }
+                        if (moveState.right) {
+                            const rightDir = new THREE.Vector3(cameraDir.z, 0, -cameraDir.x);
+                            playerGroup.position.x += rightDir.x * speed * 0.15;
+                            playerGroup.position.z += rightDir.z * speed * 0.15;
+                        }
+                    }
+ 
+                    // Solid collision: can't walk through rocks or gloo walls
+                    if (!inVehicle) {
+                        resolvePlayerCollisions(playerGroup.position);
+                    }
+ 
+                    // JUMP / GRAVITY - Space to jump, lands back on the ground
+                    if (!inVehicle) {
+                        const dt = 1 / 60;
+                        velocityY -= GRAVITY * dt;
+                        playerGroup.position.y += velocityY * dt;
+                        if (playerGroup.position.y <= 0) {
+                            playerGroup.position.y = 0;
+                            velocityY = 0;
+                            isGrounded = true;
+                        }
+                    } else {
+                        playerGroup.position.y = 0;
+                        velocityY = 0;
+                        isGrounded = true;
+                    }
+ 
+                    // Smoothly animate body height for stand / crouch (V) / prone (B)
+                    playerGroup.scale.y += (stanceInfo.scaleY - playerGroup.scale.y) * 0.25;
+ 
+                    // Continuous fire while mouse button is held down
+                    if (isMouseDown && !isPlacingGloo && !isHealing) {
+                        const now = performance.now();
+                        const interval = FIRE_INTERVAL[currentWeapon] || 200;
+                        if (now - lastPlayerFireTime >= interval) {
+                            fireBullet();
+                            lastPlayerFireTime = now;
+                        }
+                    }
+ 
+                    // Update gloo wall preview + med kit timer every frame
+                    updateGlooPreview();
+                    updateMedkitTimer();
+                    updateOrionSkill();
+                    updateSafeZone();
+                    updateMatchTimer();
+                    
+                    // Update camera position (third person, height follows stance + jump)
+                    camera.position.copy(playerGroup.position);
+                    camera.position.y += stanceInfo.camY;
+                    camera.position.x -= cameraDir.x * 8;
+                    camera.position.z -= cameraDir.z * 8;
+                    
+                    // Update vehicle positions if inside
+                    if (inVehicle) {
+                        if (currentVehicle === 'tank') {
+                            tankGroup.position.copy(playerGroup.position);
+                        } else if (currentVehicle === 'jeep') {
+                            jeepGroup.position.copy(playerGroup.position);
+                        }
+                    }
+                }
+                
+                // AI TEAMMATES BEHAVIOR
+                teammates.forEach(mate => {
+                    if (!mate.isAlive) return;
+                    if (mate.isKnocked) return; // knocked down - waiting to be revived, no AI actions
+                    
+                    // Find nearest enemy
+                    let nearestEnemy = null;
+                    let nearestDist = Infinity;
+                    
+                    enemies.forEach(enemy => {
+                        const dist = mate.mesh.position.distanceTo(enemy.mesh.position);
+                        if (dist < nearestDist && dist < 100) {
+                            nearestDist = dist;
+                            nearestEnemy = enemy;
+                        }
+                    });
+                    
+                    if (nearestEnemy) {
+                        mate.targetEnemy = nearestEnemy;
+                        
+                        // Move towards enemy if too far
+                        if (nearestDist > 30) {
+                            const toEnemy = new THREE.Vector3().subVectors(nearestEnemy.mesh.position, mate.mesh.position);
+                            toEnemy.normalize();
+                            mate.mesh.position.add(toEnemy.multiplyScalar(0.1));
+                        }
+                        
+                        // Face enemy
+                        mate.mesh.lookAt(nearestEnemy.mesh.position);
+                        
+                        // Fire at enemy
+                        teamFire(mate);
+ 
+                        // Occasionally drop a gloo wall for cover when engaged in a fight
+                        const nowT = performance.now();
+                        if (nearestDist < 55 && nowT - (mate.lastGlooTime || 0) > 9000 && Math.random() < 0.02) {
+                            mate.lastGlooTime = nowT;
+                            const toEnemyDir = new THREE.Vector3().subVectors(nearestEnemy.mesh.position, mate.mesh.position).normalize();
+                            const wallPos = mate.mesh.position.clone().add(toEnemyDir.clone().multiplyScalar(4));
+                            wallPos.y = GLOO_HEIGHT / 2;
+                            const clear = !glooWalls.some(w => w.mesh.position.distanceTo(wallPos) < GLOO_WIDTH) &&
+                                          !rockColliders.some(r => r.mesh.position.distanceTo(wallPos) < r.radius + 2) &&
+                                          !buildingColliders.some(b => b.mesh.position.distanceTo(wallPos) < b.radius + 2);
+                            if (clear) {
+                                deployGlooWall(wallPos, Math.atan2(toEnemyDir.x, toEnemyDir.z));
+                                addCombatLog(`🧊 ${mate.name} dropped a Gloo Wall for cover!`);
+                            }
+                        }
+                    } else {
+                        // Follow player
+                        const toPlayer = new THREE.Vector3().subVectors(playerGroup.position, mate.mesh.position);
+                        if (toPlayer.length() > 15) {
+                            toPlayer.normalize();
+                            mate.mesh.position.add(toPlayer.multiplyScalar(0.1));
+                        }
+                        mate.mesh.lookAt(playerGroup.position);
+                    }
+                });
+                
+                // ENEMY AI
+                enemies.forEach(enemy => {
+                    // Target player or teammates
+                    const target = inVehicle ? 
+                        (currentVehicle === 'tank' ? tankGroup.position : jeepGroup.position) : 
+                        playerGroup.position;
+                    
+                    // Move towards target
+                    const toTarget = new THREE.Vector3().subVectors(target, enemy.mesh.position);
+                    if (toTarget.length() > 20) {
+                        toTarget.normalize();
+                        enemy.mesh.position.add(toTarget.multiplyScalar(enemy.speed));
+                    }
+                    
+                    // Face target
+                    enemy.mesh.lookAt(target);
+                    
+                    // Fire at player
+                    if (toTarget.length() < 80) {
+                        enemyFire(enemy);
+                    }
+ 
+                    // Occasionally drop a gloo wall for cover when close to a fight
+                    const nowE = performance.now();
+                    if (toTarget.length() < 55 && nowE - (enemy.lastGlooTime || 0) > 9000 && Math.random() < 0.015) {
+                        enemy.lastGlooTime = nowE;
+                        const toTargetDir = toTarget.clone().normalize();
+                        const wallPos = enemy.mesh.position.clone().add(toTargetDir.clone().multiplyScalar(4));
+                        wallPos.y = GLOO_HEIGHT / 2;
+                        const clear = !glooWalls.some(w => w.mesh.position.distanceTo(wallPos) < GLOO_WIDTH) &&
+                                      !rockColliders.some(r => r.mesh.position.distanceTo(wallPos) < r.radius + 2) &&
+                                      !buildingColliders.some(b => b.mesh.position.distanceTo(wallPos) < b.radius + 2);
+                        if (clear) {
+                            deployGlooWall(wallPos, Math.atan2(toTargetDir.x, toTargetDir.z));
+                            addCombatLog("🧊 Enemy dropped a Gloo Wall for cover!");
+                        }
+                    }
+                });
+                
+                // MOVE PLAYER BULLETS
+                bullets.forEach((bullet, index) => {
+                    bullet.mesh.position.add(bullet.direction.clone().multiplyScalar(bullet.speed));
+                    bullet.distance += bullet.speed;
+ 
+                    // Blocked by a rock or gloo wall - cover stops the shot
+                    if (isBulletBlocked(bullet.mesh.position)) {
+                        createExplosion(bullet.mesh.position, 0.3);
+                        scene.remove(bullet.mesh);
+                        bullets.splice(index, 1);
+                        return;
+                    }
+                    
+                    // Check collisions with enemies
+                    enemies.forEach((enemy, enemyIndex) => {
+                        const dist = bullet.mesh.position.distanceTo(enemy.mesh.position);
+                        if (dist < 4) {
+                            scene.remove(bullet.mesh);
+                            bullets.splice(index, 1);
+                            
+                            enemy.health -= bullet.damage;
+                            createExplosion(bullet.mesh.position, 0.5);
+                            
+                            if (enemy.health <= 0) {
+                                createExplosion(enemy.mesh.position, 1.5);
+                                scene.remove(enemy.mesh);
+                                enemies.splice(enemyIndex, 1);
+                                
+                                if (bullet.owner === 'player') {
+                                    score += 10;
+                                    document.getElementById('score').textContent = score;
+                                    addCombatLog("You killed an enemy! 🎯");
+ 
+                                    // ORION SKILL: every kill charges EP straight to full (100)
+                                    epValue = epMax;
+                                    updateEpBar();
+                                    if (!isSkillActive) addCombatLog("🌌 Orion charged! Press H to unleash!");
+                                } else if (bullet.owner === 'teammate' && bullet.mate) {
+                                    bullet.mate.kills++;
+                                    teamTotalKills++;
+                                    addCombatLog(`${bullet.mate.name} killed an enemy! 👥`);
+                                }
+                            }
+                            
+                            updateEnemyCount();
+                        }
+                    });
+                    
+                    if (bullet.distance > bullet.maxDistance) {
+                        scene.remove(bullet.mesh);
+                        bullets.splice(index, 1);
+                    }
+                });
+                
+                // MOVE ENEMY BULLETS
+                enemyBullets.forEach((bullet, index) => {
+                    bullet.mesh.position.add(bullet.direction.clone().multiplyScalar(bullet.speed));
+                    bullet.distance += bullet.speed;
+ 
+                    // Blocked by a rock or gloo wall - being behind cover protects you
+                    if (isBulletBlocked(bullet.mesh.position)) {
+                        createExplosion(bullet.mesh.position, 0.3);
+                        scene.remove(bullet.mesh);
+                        enemyBullets.splice(index, 1);
+                        return;
+                    }
+                    
+                    // Check if hits player
+                    const targetPos = inVehicle ? 
+                        (currentVehicle === 'tank' ? tankGroup.position : jeepGroup.position) : 
+                        playerGroup.position;
+                    
+                    const dist = bullet.mesh.position.distanceTo(targetPos);
+                    if (dist < 3) {
+                        scene.remove(bullet.mesh);
+                        enemyBullets.splice(index, 1);
+                        
+                        createExplosion(bullet.mesh.position, 0.8);
+ 
+                        if (isSkillActive) {
+                            // Invincible while the Orion orb is active - no damage taken
+                            addCombatLog("🌌 Orion shielded you from damage!");
+                        } else {
+                            health -= bullet.damage;
+                            document.getElementById('health').textContent = health;
+                            document.getElementById('healthFill').style.width = health + '%';
+                            addCombatLog("You were hit! 💔");
+ 
+                            if (health <= 0) {
+                                gameOver();
+                            }
+                        }
+                    }
+                    
+                    // Check if hits teammates
+                    teammates.forEach(mate => {
+                        if (!mate.isAlive) return;
+                        if (mate.isKnocked) return; // invulnerable while knocked, waiting for revive
+                        const mateDist = bullet.mesh.position.distanceTo(mate.mesh.position);
+                        if (mateDist < 3) {
+                            scene.remove(bullet.mesh);
+                            enemyBullets.splice(index, 1);
+                            
+                            mate.health -= bullet.damage * 2;
+                            createExplosion(bullet.mesh.position, 0.5);
+                            addCombatLog(`${mate.name} was hit! 💔`);
+                            
+                            if (mate.health <= 0) {
+                                // Knocked down, not dead - teammates need to be revived
+                                mate.isKnocked = true;
+                                mate.health = 1 + Math.floor(Math.random() * 5); // 1-5 HP while down
+                                mate.targetEnemy = null;
+                                mate.mesh.scale.y = 0.35; // "lying down" visual
+                                createExplosion(mate.mesh.position, 1);
+                                addCombatLog(`${mate.name} is knocked down! Get close and press O to revive.`);
+                            }
+                        }
+                    });
+                    
+                    if (bullet.distance > bullet.maxDistance) {
+                        scene.remove(bullet.mesh);
+                        enemyBullets.splice(index, 1);
+                    }
+                });
+                
+                // Update particles
+                particles.forEach((particle, index) => {
+                    particle.mesh.position.add(particle.velocity);
+                    particle.life--;
+                    
+                    if (particle.life <= 0) {
+                        scene.remove(particle.mesh);
+                        particles.splice(index, 1);
+                    }
+                });
+                
+                // Spawn enemies (BR = scaling endless waves, CS = fixed small rounds)
+                const maxAlive = gameMode === 'cs' ? 5 : (5 + wave);
+                if (enemies.length < maxAlive && Math.random() < 0.01) {
+                    spawnEnemy();
+                }
+                
+                // Wave progression
+                if (enemies.length === 0) {
+                    wave++;
+                    document.getElementById('wave').textContent = wave;
+                    addCombatLog(`🔥 WAVE ${wave} STARTED! 🔥`);
+                    
+                    const spawnCount = gameMode === 'cs' ? 5 : (3 + wave);
+                    for (let i = 0; i < spawnCount; i++) {
+                        setTimeout(() => spawnEnemy(), i * 500);
+                    }
+                }
+                
+                // Update UI
+                updateMiniMap();
+                updateTeammateUI();
+                
+                // Check near vehicles
+                const playerPos = playerGroup.position;
+                const tankDist = playerPos.distanceTo(tankGroup.position);
+                const jeepDist = playerPos.distanceTo(jeepGroup.position);
+                
+                if (!inVehicle) {
+                    if (tankDist < 8) {
+                        document.getElementById('nearVehicle').innerHTML = 'Near: Tank (F)';
+                    } else if (jeepDist < 8) {
+                        document.getElementById('nearVehicle').innerHTML = 'Near: Jeep (F)';
+                    } else {
+                        document.getElementById('nearVehicle').innerHTML = 'Near: None';
+                    }
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // ===================== LOBBY: CHARACTER CUSTOMIZATION =====================
+        let playerName = 'Sher Singh';
+        let playerGender = 'male';
+        let playerDressColor = 0x4A704A;
+        let gameMode = 'br'; // 'br' (battle royale - endless waves) or 'cs' (fixed round count)
+ 
+        const DRESS_COLORS = [0x4A704A, 0x2E5A2E, 0x8B4513, 0x1F3A5F, 0x5A1F1F, 0x333333, 0xB8860B];
+ 
+        (function buildDressSwatches() {
+            const row = document.getElementById('dressRow');
+            DRESS_COLORS.forEach((c, i) => {
+                const hex = '#' + c.toString(16).padStart(6, '0');
+                const sw = document.createElement('div');
+                sw.className = 'dress-swatch' + (i === 0 ? ' selected' : '');
+                sw.style.background = hex;
+                sw.onclick = () => selectDress(c, sw);
+                row.appendChild(sw);
+            });
+        })();
+ 
+        window.selectGender = function(g) {
+            playerGender = g;
+            document.getElementById('genderMale').classList.toggle('selected', g === 'male');
+            document.getElementById('genderFemale').classList.toggle('selected', g === 'female');
+        };
+ 
+        window.selectDress = function(color, el) {
+            playerDressColor = color;
+            document.querySelectorAll('.dress-swatch').forEach(s => s.classList.remove('selected'));
+            el.classList.add('selected');
+        };
+ 
+        window.selectMode = function(m) {
+            gameMode = m;
+            document.getElementById('modeBR').classList.toggle('selected', m === 'br');
+            document.getElementById('modeCS').classList.toggle('selected', m === 'cs');
+        };
+ 
+        // Applies the chosen name/gender/dress to the actual in-scene player model + HUD
+        function applyCharacterCustomization() {
+            bodyMat.color.set(playerDressColor);
+            headMat.color.set(playerGender === 'female' ? 0xF2C6A0 : 0xFFDBAD);
+            head.scale.set(playerGender === 'female' ? 0.92 : 1, playerGender === 'female' ? 0.95 : 1, playerGender === 'female' ? 0.92 : 1);
+            document.getElementById('playerInfoLine').textContent =
+                `👤 ${playerName} • ${gameMode.toUpperCase()} • ${playerGender === 'female' ? '♀' : '♂'}`;
+        }
+ 
+        // ===================== LOBBY -> LOADING ("HACKER KING") -> GAME =====================
+        window.enterLoading = function() {
+            const nameVal = document.getElementById('playerNameInput').value.trim();
+            playerName = nameVal || 'Soldier';
+ 
+            document.getElementById('lobbyScreen').style.display = 'none';
+            const loadingEl = document.getElementById('loadingScreen');
+            loadingEl.style.display = 'flex';
+ 
+            const fill = document.getElementById('loadingBarFill');
+            const pct = document.getElementById('loadingPercent');
+            const tips = [
+                "Deploying soldiers to the border...",
+                "Loading weapons cache...",
+                "Building gloo wall inventory...",
+                "Calibrating enemy AI...",
+                "Almost ready, Hindustan Zindabad!"
+            ];
+            const tipEl = document.getElementById('loadingTip');
+ 
+            let progress = 0;
+            const loadInterval = setInterval(() => {
+                progress += 2 + Math.random() * 6;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(loadInterval);
+                    fill.style.width = '100%';
+                    pct.textContent = '100%';
+                    setTimeout(() => {
+                        loadingEl.style.display = 'none';
+                        applyCharacterCustomization();
+                        window.startGame();
+                    }, 350);
+                    return;
+                }
+                fill.style.width = progress + '%';
+                pct.textContent = Math.floor(progress) + '%';
+                tipEl.textContent = tips[Math.floor((progress / 100) * (tips.length - 1))];
+            }, 120);
+        };
+ 
+        // Start game
+        window.startGame = function() {
+            gameRunning = true;
+            try { controls.lock(); } catch (err) { /* needs a click - the canvas click listener will lock it */ }
+            
+            score = 0;
+            health = 100;
+            wave = 1;
+            inVehicle = false;
+            currentVehicle = null;
+            playerGroup.visible = true;
+            teamTotalKills = 0;
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('health').textContent = health;
+            document.getElementById('healthFill').style.width = '100%';
+            document.getElementById('wave').textContent = wave;
+            
+            // Reset teammates
+            teammates.forEach((mate, i) => {
+                mate.health = 100;
+                mate.isAlive = true;
+                mate.isKnocked = false;
+                mate.mesh.visible = true;
+                mate.mesh.scale.set(1, 1, 1);
+                mate.kills = 0;
+                mate.lastGlooTime = 0;
+                
+                const angle = (i / 4) * Math.PI * 2;
+                mate.mesh.position.set(
+                    playerGroup.position.x + Math.cos(angle) * 15,
+                    0,
+                    playerGroup.position.z + Math.sin(angle) * 15
+                );
+            });
+            
+            // Clear enemies
+            enemies.forEach(e => scene.remove(e.mesh));
+            enemies = [];
+            
+            // Clear bullets
+            bullets.forEach(b => scene.remove(b.mesh));
+            bullets = [];
+            enemyBullets.forEach(b => scene.remove(b.mesh));
+            enemyBullets = [];
+ 
+            // Clear gloo walls & reset med kit / placement state
+            glooWalls.forEach(w => scene.remove(w.mesh));
+            glooWalls.length = 0;
+            if (glooPreviewMesh) { scene.remove(glooPreviewMesh); glooPreviewMesh = null; }
+            isPlacingGloo = false;
+            isHealing = false;
+            document.getElementById('medkitTimer').style.display = 'none';
+            document.getElementById('glooSlot').classList.remove('active');
+ 
+            // Reset jump / stance / continuous fire state
+            velocityY = 0;
+            isGrounded = true;
+            stance = 'stand';
+            playerGroup.position.y = 0;
+            playerGroup.scale.set(1, 1, 1);
+            isMouseDown = false;
+            isAutoRunning = false;
+ 
+            // Reset Orion skill / EP state
+            if (isSkillActive) deactivateOrionSkill();
+            epValue = 0;
+            updateEpBar();
+ 
+            // Reset safe zone
+            zonePhase = 0;
+            zonePhaseStartTime = performance.now();
+            zoneIsShrinking = false;
+            zoneCurrentRadius = ZONE_RADII[0];
+            zoneTargetRadius = ZONE_RADII[0];
+            zoneDamageAccum = 0;
+            zoneRing.scale.set(zoneCurrentRadius, zoneCurrentRadius, 1);
+            zoneWall.scale.set(zoneCurrentRadius, 1, zoneCurrentRadius);
+            document.getElementById('zoneWarning').style.display = 'none';
+            playerGroup.position.set(0, 0, 0); // start inside the safe zone
+ 
+            // Reset match timer / end screen
+            matchStartTime = performance.now();
+            matchEnded = false;
+            isFinalMinute = false;
+            document.getElementById('finalMinuteWarning').style.display = 'none';
+            document.getElementById('gameEndScreen').style.display = 'none';
+            document.getElementById('matchTimeLeft').textContent = '15:00';
+            
+            // Spawn initial enemies
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => spawnEnemy(), i * 1000);
+            }
+            
+            addCombatLog("Mission Started! 🇮🇳");
+            addCombatLog("WASD to move, Mouse to aim, Click to fire!");
+        };
+        
+        // Game over
+        function gameOver() {
+            if (matchEnded) return;
+            matchEnded = true;
+            gameRunning = false;
+            try { controls.unlock(); } catch (err) { /* ignore */ }
+ 
+            addCombatLog("💀 GAME OVER! You died! 💀");
+            document.getElementById('dialog').textContent = " IT IS VIRTUAL GAME NOT REAL PAKISTAN!  Hindustan Zindabad!";
+ 
+            document.getElementById('gameEndTitle').textContent = isFinalMinute ? '💀 YOU LOST - FINAL MINUTE DEATH 💀' : '💀 YOU DIED 💀';
+            document.getElementById('gameEndTitle').style.color = '#ff4444';
+            document.getElementById('gameEndMsg').textContent = `Final Score: ${score}`;
+            document.getElementById('gameEndScreen').style.display = 'flex';
+        }
+        
+        // Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
+
