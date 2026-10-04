@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -225,6 +225,82 @@
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
+        }
+ 
+        /* ===================== CROSSHAIR ===================== */
+        #crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 24px;
+            height: 24px;
+            transform: translate(-50%, -50%);
+            z-index: 130;
+            pointer-events: none;
+        }
+ 
+        .crosshair-line {
+            position: absolute;
+            background: #4fd8ff;
+            box-shadow: 0 0 4px rgba(0,0,0,0.9);
+        }
+ 
+        .crosshair-top, .crosshair-bottom {
+            left: 50%;
+            width: 2px;
+            height: 8px;
+            margin-left: -1px;
+        }
+        .crosshair-top { top: 0; }
+        .crosshair-bottom { bottom: 0; }
+ 
+        .crosshair-left, .crosshair-right {
+            top: 50%;
+            height: 2px;
+            width: 8px;
+            margin-top: -1px;
+        }
+        .crosshair-left { left: 0; }
+        .crosshair-right { right: 0; }
+ 
+        .crosshair-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 3px;
+            height: 3px;
+            background: #ff4444;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+ 
+        /* ===================== HEADSHOT POPUP ===================== */
+        #headshotPopup {
+            position: fixed;
+            top: 38%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            z-index: 250;
+            font-size: 2.6em;
+            font-weight: bold;
+            color: #ff2d2d;
+            text-shadow: 0 0 10px #ff2d2d, 0 0 25px #ff0000, 2px 2px 0 #000;
+            letter-spacing: 2px;
+            opacity: 0;
+            pointer-events: none;
+            font-family: 'Arial Black', Arial, sans-serif;
+        }
+ 
+        #headshotPopup.show {
+            animation: headshotPop 0.8s ease-out;
+        }
+ 
+        @keyframes headshotPop {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+            15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+            30%  { transform: translate(-50%, -50%) scale(1); }
+            75%  { opacity: 1; transform: translate(-50%, -60%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -75%) scale(1); }
         }
         
         #controls {
@@ -685,6 +761,37 @@
             font-size: 0.9em;
             font-family: 'Courier New', monospace;
         }
+
+        /* ===================== NEW: KILL STATS / SPECTATE / REVIVE ===================== */
+        #hsBanner {
+            display: none; position: absolute; top: 62px; left: 50%; transform: translateX(-50%);
+            z-index: 120; background: rgba(160,0,0,0.85); border: 2px solid #ffd700; color: #fff;
+            padding: 6px 16px; border-radius: 12px; font-weight: bold; font-size: 0.95em; font-family: Arial, sans-serif;
+        }
+        #spectateUI {
+            display: none; position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+            z-index: 2000; text-align: center; background: rgba(0,0,0,0.85); border: 3px solid #ff4444;
+            border-radius: 16px; padding: 14px 22px; color: #fff; font-family: Arial, sans-serif; min-width: 340px;
+        }
+        #spectateUI .spec-title { font-size: 1.25em; font-weight: bold; color: #ff7a7a; margin-bottom: 4px; }
+        #specStatus { font-size: 0.95em; color: #ffd6a0; margin-bottom: 10px; min-height: 1.2em; }
+        #spectateUI button {
+            padding: 9px 14px; margin: 0 4px; border-radius: 10px; border: 2px solid #ffd700;
+            background: #222; color: #fff; font-weight: bold; cursor: pointer; font-size: 0.95em;
+        }
+        #spectateUI button#helpBtn { background: linear-gradient(90deg,#ff4444,#ff7a00); color: #fff; }
+        #spectateUI button:hover { filter: brightness(1.25); }
+        #reviveHint {
+            display: none; position: absolute; bottom: 290px; left: 50%; transform: translateX(-50%);
+            z-index: 150; background: rgba(0,60,20,0.9); border: 2px solid #4fff6a; color: #caffd4;
+            padding: 8px 18px; border-radius: 12px; font-weight: bold; font-family: Arial, sans-serif;
+        }
+        #gameEndStats {
+            margin: 0 0 22px 0; padding: 14px 20px; border-radius: 14px; text-align: left;
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,215,0,0.5);
+            font-size: 1.15em; line-height: 1.7; color: #fff;
+        }
+        #modeNote { font-size: 0.85em; color: #ffd6a0; min-height: 1.2em; margin-bottom: 4px; }
     </style>
 </head>
 <body>
@@ -716,8 +823,9 @@
                 <div class="lobby-label">🎮 Game Mode</div>
                 <div class="mode-row">
                     <div class="mode-btn selected" id="modeBR" onclick="selectMode('br')">🌍 BR</div>
-                    <div class="mode-btn" id="modeCS" onclick="selectMode('cs')">💣 CS</div>
+                    <div class="mode-btn" id="modeHS" onclick="selectMode('hs')">🎯 HEADSHOT ONLY</div>
                 </div>
+                <div id="modeNote">🌍 BR: normal damage (body + head)</div>
             </div>
  
             <button id="lobbyStartBtn" onclick="enterLoading()">⚔️ START MISSION</button>
@@ -737,6 +845,7 @@
         <div id="gameEndCard">
             <h1 id="gameEndTitle">🎉 CONGRATULATIONS! 🎉</h1>
             <p id="gameEndMsg"></p>
+            <div id="gameEndStats"></div>
             <button id="gameEndBtn" onclick="location.reload()">🔄 Play Again</button>
         </div>
     </div>
@@ -750,6 +859,22 @@
         <div class="stat-row">
             <span class="stat-label">⚔️ ENEMIES LEFT:</span>
             <span class="stat-value" id="enemyCount">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">🎯 HEADSHOT KILLS:</span>
+            <span class="stat-value" id="hsKillsVal">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">🧍 BODY KILLS:</span>
+            <span class="stat-value" id="bodyKillsVal">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">☠️ TOTAL KILLS:</span>
+            <span class="stat-value" id="totalKillsVal">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">🎫 REVIVE CARDS:</span>
+            <span class="stat-value" id="cardsVal">0</span>
         </div>
         <div class="stat-row">
             <span class="stat-label">🌊 WAVE:</span>
@@ -808,6 +933,27 @@
     <div id="zoneStatus">🗺️ <span id="zoneLabel">Zone 1/4</span> • Shrinks in <span id="zoneTimer">10:00</span></div>
     <div id="matchTimer">⏱️ <span id="matchTimeLeft">15:00</span></div>
     <div id="finalMinuteWarning">🔥 FINAL MINUTE - IF YOU DIE NOW, YOU LOSE! 🔥</div>
+ 
+    <div id="crosshair">
+        <div class="crosshair-line crosshair-top"></div>
+        <div class="crosshair-line crosshair-bottom"></div>
+        <div class="crosshair-line crosshair-left"></div>
+        <div class="crosshair-line crosshair-right"></div>
+        <div class="crosshair-dot"></div>
+    </div>
+ 
+    <div id="headshotPopup">HEADSHOT!</div>
+    <div id="hsBanner">🎯 HEADSHOT ONLY — sirf headshot ka damage lagega (aap, team aur enemy sab par)</div>
+    <div id="reviveHint"></div>
+    <div id="spectateUI">
+        <div class="spec-title">👁 SPECTATING: <span id="specName">-</span></div>
+        <div id="specStatus"></div>
+        <div>
+            <button onclick="cycleSpectate(-1)">◀ Q</button>
+            <button id="helpBtn" onclick="requestHelp()">🆘 HELP ME (X)</button>
+            <button onclick="cycleSpectate(1)">E ▶</button>
+        </div>
+    </div>
     <div id="zoneWarning">⚠️ OUTSIDE SAFE ZONE - TAKING DAMAGE!</div>
  
     <div id="dialog">"Free Feir - EKDUM STANDING ORDER HAI!"</div>
@@ -880,7 +1026,11 @@
         </div>
         <div class="key-group">
             <span class="key">O</span>
-            <span>REVIVE</span>
+            <span>REVIVE / PICK BOX</span>
+        </div>
+        <div class="key-group">
+            <span class="key">X</span>
+            <span>HELP ME (when down)</span>
         </div>
     </div>
  
@@ -925,7 +1075,7 @@
         
         // Click to lock pointer
         renderer.domElement.addEventListener('click', () => {
-            if (gameRunning) controls.lock();
+            if (gameRunning && !playerDown) controls.lock();
         });
         
         controls.addEventListener('unlock', () => {
@@ -1128,10 +1278,264 @@
             createPeak(Math.cos(a) * (MAP_HALF - 60), Math.sin(a) * (MAP_HALF - 60));
         }
  
+        // ===================== MATCH TIMER (15 min match, last 1 min = sudden death) =====================
+        const MATCH_DURATION = 15 * 60 * 1000;
+        const FINAL_MINUTE = 60 * 1000;
+        let matchStartTime = performance.now();
+        let isFinalMinute = false;
+        let matchEnded = false;
+
+        // ===================== NEW: KILL STATS =====================
+        let hsKills = 0, bodyKills = 0;
+        function isHSMode() { return gameMode === 'hs'; }
+        function updateKillHud() {
+            document.getElementById('hsKillsVal').textContent = hsKills;
+            document.getElementById('bodyKillsVal').textContent = bodyKills;
+            document.getElementById('totalKillsVal').textContent = hsKills + bodyKills;
+        }
+        function recordKill(isHead) {
+            if (isHead) hsKills++; else bodyKills++;
+            updateKillHud();
+        }
+        function statsHTML() {
+            const total = hsKills + bodyKills;
+            const pct = total ? Math.round((hsKills / total) * 100) : 0;
+            return `🎯 Headshot kills: <b>${hsKills}</b><br>` +
+                   `🧍 Body kills: <b>${bodyKills}</b><br>` +
+                   `☠️ Total kills: <b>${total}</b> (Headshot ${pct}%)<br>` +
+                   `👥 Team kills: <b>${teamTotalKills}</b>`;
+        }
+        function getPlayerHeadY() { return playerGroup.position.y + 3 * playerGroup.scale.y; }
+
+        // ===================== NEW: DOWNED PLAYER / SPECTATE / REVIVE =====================
+        let playerDown = false, playerDownAt = 0, spectateIdx = 0, helperMate = null, helperReviveStart = 0;
+        const PLAYER_BLEEDOUT_MS = 45000, MATE_BLEEDOUT_MS = 40000, HELP_REVIVE_MS = 3000;
+        const mateBoxes = [];      // "peti" left behind when a knocked teammate bleeds out
+        const carriedCards = [];   // revival cards the player picked up from those boxes
+
+        // 4 Revival Points spread around the map (all inside the final safe zone)
+        const REVIVE_POINTS = [
+            new THREE.Vector3(90, 0, 90), new THREE.Vector3(-90, 0, 90),
+            new THREE.Vector3(90, 0, -90), new THREE.Vector3(-90, 0, -90)
+        ];
+        const reviveBeacons = [];
+        REVIVE_POINTS.forEach(p => {
+            const g = new THREE.Group();
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(4, 0.3, 8, 32),
+                new THREE.MeshBasicMaterial({ color: 0x4fff6a }));
+            ring.rotation.x = Math.PI / 2; ring.position.y = 0.4; g.add(ring);
+            const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 40, 12, 1, true),
+                new THREE.MeshBasicMaterial({ color: 0x4fff6a, transparent: true, opacity: 0.3, side: THREE.DoubleSide }));
+            beam.position.y = 20; g.add(beam);
+            const crossMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const c1 = new THREE.Mesh(new THREE.BoxGeometry(3, 0.8, 0.8), crossMat);
+            const c2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 3), crossMat);
+            c1.position.y = 0.6; c2.position.y = 0.6; g.add(c1); g.add(c2);
+            g.position.copy(p);
+            scene.add(g);
+            reviveBeacons.push(ring);
+        });
+        function updateReviveVisuals() {
+            const t = performance.now() * 0.002;
+            reviveBeacons.forEach((r, i) => { r.scale.setScalar(1 + 0.12 * Math.sin(t + i)); });
+        }
+
+        function makeBoxMesh(name) {
+            const g = new THREE.Group();
+            const crate = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.8, 1.8),
+                new THREE.MeshStandardMaterial({ color: 0x8B5A2B, emissive: 0x442200 }));
+            crate.position.y = 0.9; g.add(crate);
+            const band = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.35, 1.9),
+                new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0x886600 }));
+            band.position.y = 1.2; g.add(band);
+            const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 25, 8, 1, true),
+                new THREE.MeshBasicMaterial({ color: 0xffcc00, transparent: true, opacity: 0.35, side: THREE.DoubleSide }));
+            beam.position.y = 12.5; g.add(beam);
+            const cv = document.createElement('canvas'); cv.width = 256; cv.height = 64;
+            const cx = cv.getContext('2d');
+            cx.fillStyle = 'rgba(0,0,0,0.7)'; cx.fillRect(0, 0, 256, 64);
+            cx.fillStyle = '#ffd700'; cx.font = 'bold 30px Arial'; cx.textAlign = 'center';
+            cx.fillText('📦 ' + name, 128, 42);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv) }));
+            sprite.scale.set(8, 2, 1); sprite.position.y = 4.2; g.add(sprite);
+            return g;
+        }
+
+        function killMate(mate) {
+            mate.isAlive = false;
+            mate.isKnocked = false;
+            mate.mesh.visible = false;
+            const mesh = makeBoxMesh(mate.name);
+            mesh.position.copy(mate.mesh.position); mesh.position.y = 0;
+            scene.add(mesh);
+            mateBoxes.push({ mate, mesh });
+            addCombatLog(`💀 ${mate.name} bleed out ho gaya! 📦 Uski peti ban gayi - peti uthao (O) aur Revival Point par le jao.`);
+        }
+        function updateMateBleed() {
+            const now = performance.now();
+            teammates.forEach(m => {
+                if (m.isAlive && m.isKnocked && now - m.knockedAt > MATE_BLEEDOUT_MS) killMate(m);
+            });
+        }
+
+        function updateCardsHud() {
+            document.getElementById('cardsVal').textContent = carriedCards.length ? carriedCards.map(m => m.name).join(', ') : '0';
+        }
+
+        function nearestRevivePoint(maxDist) {
+            let best = null, bd = maxDist;
+            REVIVE_POINTS.forEach(p => {
+                const d = Math.hypot(p.x - playerGroup.position.x, p.z - playerGroup.position.z);
+                if (d < bd) { bd = d; best = p; }
+            });
+            return best;
+        }
+
+        // Contextual hint: tells the player what pressing O will do right now
+        function updateReviveHint() {
+            const el = document.getElementById('reviveHint');
+            if (playerDown || inVehicle) { el.style.display = 'none'; return; }
+            let txt = '';
+            const pp = playerGroup.position;
+            const knocked = teammates.find(m => m.isKnocked && pp.distanceTo(m.mesh.position) < REVIVE_RANGE);
+            const box = mateBoxes.find(b => pp.distanceTo(b.mesh.position) < 7);
+            const rp = nearestRevivePoint(8);
+            if (knocked) txt = `💚 Press O - revive ${knocked.name}`;
+            else if (box) txt = `📦 Press O - ${box.mate.name} ki peti uthao`;
+            else if (rp && carriedCards.length) txt = `🔥 Press O - ${carriedCards.map(m => m.name).join(', ')} ko revive karo`;
+            else if (rp) txt = '✚ Revival Point - teammate ki peti yahan layein';
+            el.textContent = txt;
+            el.style.display = txt ? 'block' : 'none';
+        }
+
+        function onPlayerHealthZero() {
+            if (playerDown || matchEnded) return;
+            health = 0;
+            document.getElementById('health').textContent = 0;
+            document.getElementById('healthFill').style.width = '0%';
+            const helpersLeft = teammates.some(m => m.isAlive && !m.isKnocked);
+            if (isFinalMinute || !helpersLeft) { gameOver(); return; }
+            if (inVehicle) toggleVehicle();
+            playerDown = true;
+            playerDownAt = performance.now();
+            helperMate = null; helperReviveStart = 0;
+            isMouseDown = false; isAutoRunning = false;
+            moveState.forward = moveState.backward = moveState.left = moveState.right = false;
+            isHealing = false;
+            document.getElementById('medkitTimer').style.display = 'none';
+            if (glooPreviewMesh) { scene.remove(glooPreviewMesh); glooPreviewMesh = null; }
+            isPlacingGloo = false;
+            spectateIdx = Math.max(0, teammates.findIndex(m => m.isAlive && !m.isKnocked));
+            try { controls.unlock(); } catch (err) { /* ignore */ }
+            document.getElementById('spectateUI').style.display = 'block';
+            addCombatLog("🩸 Aap gir gaye! Teammate ko spectate karo, X dabao ya HELP ME button se madad maango.");
+        }
+
+        window.cycleSpectate = function(dir) {
+            if (!playerDown) return;
+            for (let k = 0; k < teammates.length; k++) {
+                spectateIdx = (spectateIdx + dir + teammates.length) % teammates.length;
+                if (teammates[spectateIdx].isAlive) break;
+            }
+        };
+
+        window.requestHelp = function() {
+            if (!playerDown) return;
+            const mate = teammates[spectateIdx];
+            if (!mate || !mate.isAlive || mate.isKnocked) {
+                addCombatLog("⚠️ Ye teammate khud gira hua hai - dusre teammate ko spectate karke help maango.");
+                return;
+            }
+            helperMate = mate; helperReviveStart = 0;
+            addCombatLog(`🆘 "${mate.name}, help me!" - ${mate.name} aapko revive karne aa raha hai!`);
+        };
+
+        function revivePlayerBy(mate) {
+            playerDown = false;
+            helperMate = null; helperReviveStart = 0;
+            health = 50;
+            document.getElementById('health').textContent = health;
+            document.getElementById('healthFill').style.width = health + '%';
+            stance = 'stand';
+            playerGroup.scale.set(1, 1, 1);
+            document.getElementById('spectateUI').style.display = 'none';
+            addCombatLog(`💚 ${mate.name} ne aapko revive kar diya! (screen par click karke wapas khelo)`);
+            try { controls.lock(); } catch (err) { /* click on the screen to resume */ }
+        }
+
+        function updatePlayerDown() {
+            if (!playerDown) return;
+            const now = performance.now();
+            const left = PLAYER_BLEEDOUT_MS - (now - playerDownAt);
+            if (left <= 0 || !teammates.some(m => m.isAlive && !m.isKnocked)) { gameOver(); return; }
+
+            playerGroup.scale.y += (0.25 - playerGroup.scale.y) * 0.25; // lying on the ground
+
+            if (helperMate && (!helperMate.isAlive || helperMate.isKnocked)) {
+                helperMate = null; helperReviveStart = 0;
+                addCombatLog("⚠️ Madad karne wala teammate gir gaya! Kisi aur ko help maango.");
+            }
+            if (!teammates[spectateIdx] || !teammates[spectateIdx].isAlive) window.cycleSpectate(1);
+
+            const mate = teammates[spectateIdx];
+            if (mate) {
+                const dir = new THREE.Vector3();
+                mate.mesh.getWorldDirection(dir);
+                dir.y = 0; dir.normalize();
+                camera.position.set(mate.mesh.position.x - dir.x * 10, mate.mesh.position.y + 6, mate.mesh.position.z - dir.z * 10);
+                camera.lookAt(mate.mesh.position.x + dir.x * 20, mate.mesh.position.y + 3, mate.mesh.position.z + dir.z * 20);
+                document.getElementById('specName').textContent = mate.name;
+            }
+            let status = `🩸 Bleed out in ${Math.ceil(left / 1000)}s`;
+            if (helperMate) {
+                status = helperReviveStart
+                    ? `💚 ${helperMate.name} revive kar raha hai... ${Math.max(0, (HELP_REVIVE_MS - (now - helperReviveStart)) / 1000).toFixed(1)}s`
+                    : `🏃 ${helperMate.name} aapki taraf aa raha hai...`;
+            } else if (mate && mate.isKnocked) {
+                status += ' • ye teammate gira hua hai';
+            }
+            document.getElementById('specStatus').textContent = status;
+        }
+
+        // AI: the teammate you called runs to your body and revives you
+        function moveHelperTowardPlayer(mate) {
+            const toP = new THREE.Vector3().subVectors(playerGroup.position, mate.mesh.position);
+            toP.y = 0;
+            const d = toP.length();
+            mate.mesh.lookAt(playerGroup.position.x, mate.mesh.position.y, playerGroup.position.z);
+            if (d > 3.5) {
+                toP.normalize();
+                mate.mesh.position.add(toP.multiplyScalar(0.7));
+                helperReviveStart = 0;
+            } else {
+                if (!helperReviveStart) helperReviveStart = performance.now();
+                if (performance.now() - helperReviveStart >= HELP_REVIVE_MS) revivePlayerBy(mate);
+            }
+        }
+
+        // Where enemies aim: the player, or the nearest living teammate while the player is down
+        function getEnemyTarget(enemy) {
+            if (playerDown) {
+                let best = null, bd = Infinity;
+                teammates.forEach(m => {
+                    if (!m.isAlive || m.isKnocked) return;
+                    const d = m.mesh.position.distanceTo(enemy.mesh.position);
+                    if (d < bd) { bd = d; best = m; }
+                });
+                if (best) return { pos: best.mesh.position, headY: 3 };
+            }
+            if (inVehicle) return { pos: (currentVehicle === 'tank' ? tankGroup : jeepGroup).position, headY: 2 };
+            return { pos: playerGroup.position, headY: 3 * playerGroup.scale.y };
+        }
+ 
         // ===================== SAFE ZONE (shrinking storm - 3 shrinks, 4 stages) =====================
         const SAFE_ZONE_CENTER = new THREE.Vector3(0, 0, 0);
         const ZONE_RADII = [1850, 950, 450, 150];     // zone 1 starts at the map's outer edge, then shrinks 3x
-        const ZONE_DURATIONS = [10 * 60000, 5 * 60000, 3 * 60000, 0.5 * 60000]; // time you can spend in each zone
+        // Zone timing scales itself to the match length (ratios 10:5:3:0.5 of the 15 min match)
+        // so the last (smallest) zone finishes right as the match's final minute begins.
+        const ZONE_DURATION_RATIOS = [10, 5, 3, 0.5];
+        const ZONE_RATIO_SUM = ZONE_DURATION_RATIOS.reduce((a, b) => a + b, 0);
+        const ZONE_DURATIONS = ZONE_DURATION_RATIOS.map(r => (r / ZONE_RATIO_SUM) * MATCH_DURATION);
         const ZONE_SHRINK_TIME = 20 * 1000; // 20 sec animated shrink between stages
         const ZONE_DAMAGE_PER_SEC = 6; // can kill you if you stay outside
  
@@ -1142,13 +1546,6 @@
         let zoneCurrentRadius = ZONE_RADII[0];
         let zoneTargetRadius = ZONE_RADII[0];
         let zoneDamageAccum = 0;
- 
-        // ===================== MATCH TIMER (15 min match, last 1 min = sudden death) =====================
-        const MATCH_DURATION = 15 * 60 * 1000;
-        const FINAL_MINUTE = 60 * 1000;
-        let matchStartTime = performance.now();
-        let isFinalMinute = false;
-        let matchEnded = false;
  
         // Ground ring outline showing the current boundary
         const zoneRing = new THREE.Mesh(
@@ -1436,6 +1833,15 @@
         
         window.addEventListener('keydown', (e) => {
             keys[e.key.toLowerCase()] = true;
+ 
+            // While downed you can only spectate (Q/E or arrows) and call for help (X)
+            if (playerDown && gameRunning) {
+                const k = e.key.toLowerCase();
+                if (k === 'q' || e.key === 'ArrowLeft') window.cycleSpectate(-1);
+                else if (k === 'e' || e.key === 'ArrowRight') window.cycleSpectate(1);
+                else if (k === 'x') window.requestHelp();
+                return;
+            }
             
             if (e.key === 'f' && gameRunning) {
                 toggleVehicle();
@@ -1987,7 +2393,7 @@
             }
  
             // Damage if the player is outside the current safe zone
-            if (!inVehicle && gameRunning) {
+            if (!inVehicle && gameRunning && !playerDown) {
                 const dx = playerGroup.position.x - SAFE_ZONE_CENTER.x;
                 const dz = playerGroup.position.z - SAFE_ZONE_CENTER.z;
                 const distFromCenter = Math.sqrt(dx * dx + dz * dz);
@@ -2001,7 +2407,7 @@
                         health -= ZONE_DAMAGE_PER_SEC;
                         document.getElementById('health').textContent = health;
                         document.getElementById('healthFill').style.width = Math.max(0, health) + '%';
-                        if (health <= 0) gameOver();
+                        if (health <= 0) onPlayerHealthZero();
                     }
                 }
             } else {
@@ -2040,6 +2446,8 @@
             document.getElementById('gameEndTitle').style.color = '#4fff6a';
             document.getElementById('gameEndMsg').textContent =
                 `You survived the full 15 minutes, ${playerName}! Final Score: ${score}`;
+            document.getElementById('gameEndStats').innerHTML = statsHTML();
+            document.getElementById('spectateUI').style.display = 'none';
             document.getElementById('gameEndScreen').style.display = 'flex';
             addCombatLog("🎉 CONGRATULATIONS! You won the match!");
         }
@@ -2056,7 +2464,8 @@
             }
         }
  
-        // Press O near a knocked-down teammate to revive them
+        // Press O: (1) revive a knocked teammate, (2) pick up a dead teammate's box (peti),
+        // (3) at a Revival Point, bring cards back to life
         const REVIVE_RANGE = 6;
         function reviveNearbyTeammate() {
             let target = null, closestDist = REVIVE_RANGE;
@@ -2066,15 +2475,40 @@
                 if (d < closestDist) { closestDist = d; target = mate; }
             });
  
-            if (!target) {
-                addCombatLog("No knocked teammate nearby to revive.");
+            if (target) {
+                target.isKnocked = false;
+                target.health = 50;
+                target.mesh.scale.set(1, 1, 1);
+                addCombatLog(`💚 You revived ${target.name}!`);
                 return;
             }
  
-            target.isKnocked = false;
-            target.health = 50;
-            target.mesh.scale.set(1, 1, 1);
-            addCombatLog(`💚 You revived ${target.name}!`);
+            // pick up a peti (dead teammate's box)
+            const bi = mateBoxes.findIndex(b => playerGroup.position.distanceTo(b.mesh.position) < 7);
+            if (bi !== -1) {
+                const b = mateBoxes.splice(bi, 1)[0];
+                scene.remove(b.mesh);
+                carriedCards.push(b.mate);
+                updateCardsHud();
+                addCombatLog(`🎫 ${b.mate.name} ka revival card mil gaya! Ab kisi Revival Point (✚ green ring) par jao aur O dabao.`);
+                return;
+            }
+ 
+            // revive at a Revival Point
+            const rp = nearestRevivePoint(8);
+            if (rp && carriedCards.length) {
+                carriedCards.splice(0).forEach((m, i) => {
+                    m.isAlive = true; m.isKnocked = false; m.health = 50;
+                    m.targetEnemy = null;
+                    m.mesh.visible = true; m.mesh.scale.set(1, 1, 1);
+                    m.mesh.position.set(rp.x + (i - 1) * 2.5, 0, rp.z + 3);
+                    addCombatLog(`🔥 ${m.name} Revival Point se wapas aa gaya!`);
+                });
+                updateCardsHud();
+                return;
+            }
+ 
+            addCombatLog(rp ? "Revival Point par ho, lekin aapke paas kisi teammate ka card nahi hai - pehle uski peti uthao." : "Aas-paas koi knocked teammate, peti ya Revival Point nahi hai.");
         }
         
         // Toggle vehicle
@@ -2112,7 +2546,7 @@
         
         // Fire bullet
         function fireBullet() {
-            if (!gameRunning) return;
+            if (!gameRunning || playerDown) return;
  
             // Firing your weapon breaks the Orion orb form - you can't shoot while you're a ball of light
             if (isSkillActive) {
@@ -2183,10 +2617,11 @@
             bullet.position.copy(enemy.mesh.position);
             bullet.position.y += 2;
             
-            // Target player
-            const targetPos = inVehicle ? 
-                (currentVehicle === 'tank' ? tankGroup.position : jeepGroup.position) : 
-                playerGroup.position;
+            // Target player (or a teammate while the player is down)
+            const tgt = getEnemyTarget(enemy);
+            const targetPos = tgt.pos.clone();
+            // Headshot Only mode: ~35% of enemy shots are aimed at the head, the rest hit the body (no damage)
+            if (isHSMode()) targetPos.y += (Math.random() < 0.35) ? tgt.headY : 1.5;
             
             const direction = new THREE.Vector3().subVectors(targetPos, bullet.position).normalize();
             
@@ -2221,7 +2656,9 @@
             bullet.position.copy(mate.mesh.position);
             bullet.position.y += 2;
             
-            const direction = new THREE.Vector3().subVectors(mate.targetEnemy.mesh.position, bullet.position).normalize();
+            const aimPos = mate.targetEnemy.mesh.position.clone();
+            if (isHSMode() && Math.random() < 0.6) aimPos.y += 3.5; // teammates also need headshots in this mode
+            const direction = new THREE.Vector3().subVectors(aimPos, bullet.position).normalize();
             
             bullet.castShadow = true;
             scene.add(bullet);
@@ -2268,14 +2705,22 @@
             flag.castShadow = true;
             enemyGroup.add(flag);
             
-            // Random position (far away)
+            // Random position (far away from player, but always kept inside the current safe zone)
             const angle = Math.random() * Math.PI * 2;
             const radius = 200 + Math.random() * 150;
-            enemyGroup.position.set(
-                playerGroup.position.x + Math.cos(angle) * radius,
-                0,
-                playerGroup.position.z + Math.sin(angle) * radius
-            );
+            let spawnX = playerGroup.position.x + Math.cos(angle) * radius;
+            let spawnZ = playerGroup.position.z + Math.sin(angle) * radius;
+ 
+            // Clamp into the safe zone so enemies never spawn out in the storm
+            const distFromZoneCenter = Math.sqrt(spawnX * spawnX + spawnZ * spawnZ);
+            const maxSpawnRadius = zoneCurrentRadius * 0.85;
+            if (distFromZoneCenter > maxSpawnRadius) {
+                const pull = maxSpawnRadius / distFromZoneCenter;
+                spawnX *= pull;
+                spawnZ *= pull;
+            }
+ 
+            enemyGroup.position.set(spawnX, 0, spawnZ);
             
             scene.add(enemyGroup);
             
@@ -2335,19 +2780,31 @@
                 logDiv.removeChild(logDiv.firstChild);
             }
         }
+ 
+        // Pops the big "HEADSHOT!" text on screen (restarts the CSS animation even on rapid hits)
+        function triggerHeadshotPopup() {
+            const el = document.getElementById('headshotPopup');
+            el.classList.remove('show');
+            void el.offsetWidth; // force reflow so the animation restarts
+            el.classList.add('show');
+        }
         
         // Update teammate UI
         function updateTeammateUI() {
             const container = document.getElementById('teammatesList');
             let html = '';
             
+            const nowUI = performance.now();
             teammates.forEach(mate => {
-                const healthPercent = (mate.health / mate.maxHealth) * 100;
+                const healthPercent = mate.isAlive ? (mate.health / mate.maxHealth) * 100 : 0;
+                const bleed = mate.isKnocked ? Math.max(0, Math.ceil((MATE_BLEEDOUT_MS - (nowUI - mate.knockedAt)) / 1000)) : 0;
+                const tag = !mate.isAlive ? ' 💀📦' : (mate.isKnocked ? ' 🆘' : '');
+                const right = !mate.isAlive ? 'DEAD' : (mate.isKnocked ? `KNOCKED ${bleed}s` : mate.kills);
                 html += `
                     <div class="teammate">
-                        <span>👤 ${mate.name}${mate.isKnocked ? ' 🆘' : ''}</span>
+                        <span>👤 ${mate.name}${tag}</span>
                         <div class="teammate-health" style="width: ${healthPercent}%; background: ${mate.isKnocked ? '#ff3333' : (healthPercent > 50 ? '#00ff00' : '#ffaa00')}"></div>
-                        <span class="teammate-kills">${mate.isKnocked ? 'KNOCKED' : mate.kills}</span>
+                        <span class="teammate-kills">${right}</span>
                     </div>
                 `;
             });
@@ -2384,11 +2841,23 @@
             ctx.arc(110 + SAFE_ZONE_CENTER.x * scale, 110 - SAFE_ZONE_CENTER.z * scale, zoneCurrentRadius * scale, 0, 2 * Math.PI);
             ctx.stroke();
             
+            // Revival Points (green plus) + dead teammates' boxes (yellow squares)
+            ctx.fillStyle = '#4fff6a';
+            REVIVE_POINTS.forEach(p => {
+                const rx = 110 + p.x * scale, ry = 110 - p.z * scale;
+                ctx.fillRect(rx - 5, ry - 1.5, 10, 3);
+                ctx.fillRect(rx - 1.5, ry - 5, 3, 10);
+            });
+            ctx.fillStyle = '#ffd700';
+            mateBoxes.forEach(b => {
+                ctx.fillRect(110 + b.mesh.position.x * scale - 3, 110 - b.mesh.position.z * scale - 3, 6, 6);
+            });
+            
             // Player
             const playerX = 110 + (playerGroup.position.x * scale);
             const playerY = 110 - (playerGroup.position.z * scale);
             
-            ctx.fillStyle = '#00ff00';
+            ctx.fillStyle = playerDown ? '#ff3333' : '#00ff00';
             ctx.beginPath();
             ctx.arc(playerX, playerY, 5, 0, 2 * Math.PI);
             ctx.fill();
@@ -2447,8 +2916,8 @@
                     const orionMul = isSkillActive ? ORION_SPEED_MULT : 1;
                     const speed = inVehicle ? baseSpeed : baseSpeed * stanceInfo.speedMul * orionMul;
                     
-                    // Move player based on keys (frozen while using med kit)
-                    if (!isHealing) {
+                    // Move player based on keys (frozen while using med kit or when downed)
+                    if (!isHealing && !playerDown) {
                         if (moveState.forward) {
                             playerGroup.position.x += cameraDir.x * speed * 0.15;
                             playerGroup.position.z += cameraDir.z * speed * 0.15;
@@ -2526,10 +2995,15 @@
                     }
                 }
                 
+                // Downed player: spectate camera, bleed-out and help-me flow
+                updatePlayerDown();
+                updateMateBleed();
+ 
                 // AI TEAMMATES BEHAVIOR
                 teammates.forEach(mate => {
                     if (!mate.isAlive) return;
                     if (mate.isKnocked) return; // knocked down - waiting to be revived, no AI actions
+                    if (playerDown && mate === helperMate) { moveHelperTowardPlayer(mate); return; }
                     
                     // Find nearest enemy
                     let nearestEnemy = null;
@@ -2586,11 +3060,10 @@
                 });
                 
                 // ENEMY AI
+                const zoneDeadEnemies = [];
                 enemies.forEach(enemy => {
-                    // Target player or teammates
-                    const target = inVehicle ? 
-                        (currentVehicle === 'tank' ? tankGroup.position : jeepGroup.position) : 
-                        playerGroup.position;
+                    // Target player (or the nearest teammate while the player is down)
+                    const target = getEnemyTarget(enemy).pos;
                     
                     // Move towards target
                     const toTarget = new THREE.Vector3().subVectors(target, enemy.mesh.position);
@@ -2622,6 +3095,31 @@
                             addCombatLog("🧊 Enemy dropped a Gloo Wall for cover!");
                         }
                     }
+ 
+                    // Safe zone damages enemies too - they take chip damage while outside,
+                    // pushing them to fight their way into the safe zone instead of camping in the storm
+                    const edx = enemy.mesh.position.x - SAFE_ZONE_CENTER.x;
+                    const edz = enemy.mesh.position.z - SAFE_ZONE_CENTER.z;
+                    const enemyDistFromZone = Math.sqrt(edx * edx + edz * edz);
+                    if (enemyDistFromZone > zoneCurrentRadius) {
+                        enemy.zoneDamageAccum = (enemy.zoneDamageAccum || 0) + 16;
+                        if (enemy.zoneDamageAccum >= 1000) {
+                            enemy.zoneDamageAccum = 0;
+                            enemy.health -= 1;
+                            if (enemy.health <= 0) zoneDeadEnemies.push(enemy);
+                        }
+                    }
+                });
+ 
+                // Clean up enemies that the storm finished off (spawnEnemy() keeps replacements inside the zone)
+                zoneDeadEnemies.forEach(enemy => {
+                    const idx = enemies.indexOf(enemy);
+                    if (idx !== -1) {
+                        createExplosion(enemy.mesh.position, 1);
+                        scene.remove(enemy.mesh);
+                        enemies.splice(idx, 1);
+                        updateEnemyCount();
+                    }
                 });
                 
                 // MOVE PLAYER BULLETS
@@ -2639,13 +3137,29 @@
                     
                     // Check collisions with enemies
                     enemies.forEach((enemy, enemyIndex) => {
+                        if (bullet.spent) return;
                         const dist = bullet.mesh.position.distanceTo(enemy.mesh.position);
                         if (dist < 4) {
+                            bullet.spent = true;
                             scene.remove(bullet.mesh);
                             bullets.splice(index, 1);
-                            
-                            enemy.health -= bullet.damage;
+ 
+                            // Headshot check: enemy head sits at local y=3.5 (base + head sphere radius 1)
+                            const enemyHeadY = enemy.mesh.position.y + 3.5;
+                            const isHeadshot = Math.abs(bullet.mesh.position.y - enemyHeadY) < 1.1;
+                            let dmg = isHeadshot ? bullet.damage * 4 : bullet.damage;
+                            // Headshot Only mode: body shots do NOTHING
+                            if (isHSMode() && !isHeadshot) dmg = 0;
+ 
+                            enemy.health -= dmg;
                             createExplosion(bullet.mesh.position, 0.5);
+ 
+                            if (isHeadshot) {
+                                if (bullet.owner === 'player') triggerHeadshotPopup();
+                                addCombatLog(bullet.owner === 'player' ? "🎯 HEADSHOT! (x4 damage)" : `🎯 ${bullet.mate ? bullet.mate.name : 'Teammate'} ne HEADSHOT maara!`);
+                            } else if (isHSMode() && bullet.owner === 'player') {
+                                addCombatLog("🚫 Body shot - Headshot Only mode me damage nahi!");
+                            }
                             
                             if (enemy.health <= 0) {
                                 createExplosion(enemy.mesh.position, 1.5);
@@ -2655,7 +3169,8 @@
                                 if (bullet.owner === 'player') {
                                     score += 10;
                                     document.getElementById('score').textContent = score;
-                                    addCombatLog("You killed an enemy! 🎯");
+                                    recordKill(isHeadshot);
+                                    addCombatLog(isHeadshot ? "You killed an enemy with a HEADSHOT! 🎯" : "You killed an enemy (body shot) 🧍");
  
                                     // ORION SKILL: every kill charges EP straight to full (100)
                                     epValue = epMax;
@@ -2691,54 +3206,89 @@
                         return;
                     }
                     
-                    // Check if hits player
+                    // Check if hits player (skipped while downed - the body is untouchable)
                     const targetPos = inVehicle ? 
                         (currentVehicle === 'tank' ? tankGroup.position : jeepGroup.position) : 
                         playerGroup.position;
                     
-                    const dist = bullet.mesh.position.distanceTo(targetPos);
-                    if (dist < 3) {
+                    let hitPlayer = false, playerHead = !isHSMode();
+                    if (!playerDown) {
+                        if (isHSMode() && !inVehicle) {
+                            const bp = bullet.mesh.position;
+                            if (Math.hypot(bp.x - playerGroup.position.x, bp.z - playerGroup.position.z) < 2) {
+                                const headY = getPlayerHeadY();
+                                if (bp.y > playerGroup.position.y - 0.5 && bp.y < headY + 1.2) {
+                                    hitPlayer = true;
+                                    playerHead = Math.abs(bp.y - headY) < 1.0;
+                                }
+                            }
+                        } else if (bullet.mesh.position.distanceTo(targetPos) < 3) {
+                            hitPlayer = true; // vehicle armour in HS mode: playerHead stays false
+                        }
+                    }
+                    if (hitPlayer) {
                         scene.remove(bullet.mesh);
                         enemyBullets.splice(index, 1);
-                        
                         createExplosion(bullet.mesh.position, 0.8);
  
                         if (isSkillActive) {
                             // Invincible while the Orion orb is active - no damage taken
                             addCombatLog("🌌 Orion shielded you from damage!");
+                        } else if (isHSMode() && !playerHead) {
+                            addCombatLog("🛡️ Enemy ki body shot - Headshot Only me damage nahi!");
                         } else {
-                            health -= bullet.damage;
-                            document.getElementById('health').textContent = health;
-                            document.getElementById('healthFill').style.width = health + '%';
-                            addCombatLog("You were hit! 💔");
+                            health -= isHSMode() ? bullet.damage * 4 : bullet.damage;
+                            document.getElementById('health').textContent = Math.max(0, health);
+                            document.getElementById('healthFill').style.width = Math.max(0, health) + '%';
+                            addCombatLog(isHSMode() ? "☠️ Enemy ka HEADSHOT aap par laga! 💔" : "You were hit! 💔");
  
                             if (health <= 0) {
-                                gameOver();
+                                onPlayerHealthZero();
                             }
                         }
+                        return;
                     }
                     
                     // Check if hits teammates
                     teammates.forEach(mate => {
                         if (!mate.isAlive) return;
                         if (mate.isKnocked) return; // invulnerable while knocked, waiting for revive
-                        const mateDist = bullet.mesh.position.distanceTo(mate.mesh.position);
-                        if (mateDist < 3) {
+                        if (bullet.consumed) return;
+                        let mateHit = false, mateHead = true;
+                        if (isHSMode()) {
+                            const bp = bullet.mesh.position;
+                            if (Math.hypot(bp.x - mate.mesh.position.x, bp.z - mate.mesh.position.z) < 2) {
+                                const mHeadY = mate.mesh.position.y + 3;
+                                if (bp.y > mate.mesh.position.y - 0.5 && bp.y < mHeadY + 1.2) {
+                                    mateHit = true;
+                                    mateHead = Math.abs(bp.y - mHeadY) < 1.0;
+                                }
+                            }
+                        } else if (bullet.mesh.position.distanceTo(mate.mesh.position) < 3) {
+                            mateHit = true;
+                        }
+                        if (mateHit) {
+                            bullet.consumed = true;
                             scene.remove(bullet.mesh);
                             enemyBullets.splice(index, 1);
-                            
-                            mate.health -= bullet.damage * 2;
                             createExplosion(bullet.mesh.position, 0.5);
+ 
+                            if (isHSMode() && !mateHead) {
+                                addCombatLog(`🛡️ ${mate.name} ko body shot laga - damage nahi!`);
+                                return;
+                            }
+                            mate.health -= bullet.damage * (isHSMode() ? 4 : 2);
                             addCombatLog(`${mate.name} was hit! 💔`);
                             
                             if (mate.health <= 0) {
-                                // Knocked down, not dead - teammates need to be revived
+                                // Knocked down - revive him (O) before he bleeds out and turns into a box
                                 mate.isKnocked = true;
+                                mate.knockedAt = performance.now();
                                 mate.health = 1 + Math.floor(Math.random() * 5); // 1-5 HP while down
                                 mate.targetEnemy = null;
                                 mate.mesh.scale.y = 0.35; // "lying down" visual
                                 createExplosion(mate.mesh.position, 1);
-                                addCombatLog(`${mate.name} is knocked down! Get close and press O to revive.`);
+                                addCombatLog(`${mate.name} is knocked down! ${Math.round(MATE_BLEEDOUT_MS / 1000)}s me O dabake revive karo warna uski peti ban jayegi.`);
                             }
                         }
                     });
@@ -2761,7 +3311,7 @@
                 });
                 
                 // Spawn enemies (BR = scaling endless waves, CS = fixed small rounds)
-                const maxAlive = gameMode === 'cs' ? 5 : (5 + wave);
+                const maxAlive = gameMode === 'hs' ? 5 : (5 + wave);
                 if (enemies.length < maxAlive && Math.random() < 0.01) {
                     spawnEnemy();
                 }
@@ -2772,7 +3322,7 @@
                     document.getElementById('wave').textContent = wave;
                     addCombatLog(`🔥 WAVE ${wave} STARTED! 🔥`);
                     
-                    const spawnCount = gameMode === 'cs' ? 5 : (3 + wave);
+                    const spawnCount = gameMode === 'hs' ? 5 : (3 + wave);
                     for (let i = 0; i < spawnCount; i++) {
                         setTimeout(() => spawnEnemy(), i * 500);
                     }
@@ -2781,6 +3331,8 @@
                 // Update UI
                 updateMiniMap();
                 updateTeammateUI();
+                updateReviveVisuals();
+                updateReviveHint();
                 
                 // Check near vehicles
                 const playerPos = playerGroup.position;
@@ -2807,7 +3359,7 @@
         let playerName = 'Sher Singh';
         let playerGender = 'male';
         let playerDressColor = 0x4A704A;
-        let gameMode = 'br'; // 'br' (battle royale - endless waves) or 'cs' (fixed round count)
+        let gameMode = 'br'; // 'br' (battle royale - endless waves) or 'hs' (HEADSHOT ONLY - only headshots deal damage)
  
         const DRESS_COLORS = [0x4A704A, 0x2E5A2E, 0x8B4513, 0x1F3A5F, 0x5A1F1F, 0x333333, 0xB8860B];
  
@@ -2838,7 +3390,10 @@
         window.selectMode = function(m) {
             gameMode = m;
             document.getElementById('modeBR').classList.toggle('selected', m === 'br');
-            document.getElementById('modeCS').classList.toggle('selected', m === 'cs');
+            document.getElementById('modeHS').classList.toggle('selected', m === 'hs');
+            document.getElementById('modeNote').textContent = m === 'hs'
+                ? '🎯 Sirf headshot se damage - enemy bhi sirf headshot se damage karega'
+                : '🌍 BR: normal damage (body + head)';
         };
  
         // Applies the chosen name/gender/dress to the actual in-scene player model + HUD
@@ -2847,7 +3402,8 @@
             headMat.color.set(playerGender === 'female' ? 0xF2C6A0 : 0xFFDBAD);
             head.scale.set(playerGender === 'female' ? 0.92 : 1, playerGender === 'female' ? 0.95 : 1, playerGender === 'female' ? 0.92 : 1);
             document.getElementById('playerInfoLine').textContent =
-                `👤 ${playerName} • ${gameMode.toUpperCase()} • ${playerGender === 'female' ? '♀' : '♂'}`;
+                `👤 ${playerName} • ${gameMode === 'hs' ? 'HEADSHOT ONLY' : gameMode.toUpperCase()} • ${playerGender === 'female' ? '♀' : '♂'}`;
+            document.getElementById('hsBanner').style.display = gameMode === 'hs' ? 'block' : 'none';
         }
  
         // ===================== LOBBY -> LOADING ("HACKER KING") -> GAME =====================
@@ -2903,6 +3459,11 @@
             currentVehicle = null;
             playerGroup.visible = true;
             teamTotalKills = 0;
+            hsKills = 0; bodyKills = 0; updateKillHud();
+            playerDown = false; helperMate = null; helperReviveStart = 0;
+            document.getElementById('spectateUI').style.display = 'none';
+            mateBoxes.splice(0).forEach(b => scene.remove(b.mesh));
+            carriedCards.length = 0; updateCardsHud();
             
             document.getElementById('score').textContent = score;
             document.getElementById('health').textContent = health;
@@ -2914,6 +3475,7 @@
                 mate.health = 100;
                 mate.isAlive = true;
                 mate.isKnocked = false;
+                mate.knockedAt = 0;
                 mate.mesh.visible = true;
                 mate.mesh.scale.set(1, 1, 1);
                 mate.kills = 0;
@@ -2999,9 +3561,12 @@
             addCombatLog("💀 GAME OVER! You died! 💀");
             document.getElementById('dialog').textContent = " IT IS VIRTUAL GAME NOT REAL PAKISTAN!  Hindustan Zindabad!";
  
-            document.getElementById('gameEndTitle').textContent = isFinalMinute ? '💀 YOU LOST - FINAL MINUTE DEATH 💀' : '💀 YOU DIED 💀';
+            document.getElementById('gameEndTitle').textContent = isFinalMinute ? '💀 YOU LOST -  DEATH 💀' : '💀 YOU DIED 💀';
             document.getElementById('gameEndTitle').style.color = '#ff4444';
             document.getElementById('gameEndMsg').textContent = `Final Score: ${score}`;
+            document.getElementById('gameEndStats').innerHTML = statsHTML();
+            document.getElementById('spectateUI').style.display = 'none';
+            playerDown = false;
             document.getElementById('gameEndScreen').style.display = 'flex';
         }
         
@@ -3014,4 +3579,3 @@
     </script>
 </body>
 </html>
-
