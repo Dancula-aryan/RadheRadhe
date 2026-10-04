@@ -1742,10 +1742,10 @@
         function fireHook() {
             if (hookState) return;
             const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
-            let best = null, bestAng = 0.25;
+            let best = null, bestAng = 0.3;
             platforms.forEach(p => {
                 const v = new THREE.Vector3((p.minX + p.maxX) / 2, p.topY, (p.minZ + p.maxZ) / 2).sub(camera.position);
-                if (v.length() > 100) return;
+                if (v.length() > 300) return; // hook range: 300
                 const ang = Math.acos(Math.min(1, v.normalize().dot(dir)));
                 if (ang < bestAng) { bestAng = ang; best = p; }
             });
@@ -1765,7 +1765,7 @@
             const v = new THREE.Vector3(t.x - p.x, t.y - p.y, t.z - p.z), len = v.length();
             velocityY = 0;
             if (len < 2.5) { p.set(t.x, t.y, t.z); hookState = null; isGrounded = true; addCombatLog('🏢 Aap chhat par pahunch gaye!'); }
-            else p.add(v.normalize().multiplyScalar(1.7));
+            else p.add(v.normalize().multiplyScalar(2.6));
             if (hookLine) {
                 const a = hookLine.geometry.attributes.position;
                 a.setXYZ(0, p.x, p.y + 2, p.z); a.setXYZ(1, t.x, t.y, t.z); a.needsUpdate = true;
@@ -2846,6 +2846,7 @@
         // Enemy fire
         function enemyFire(enemy) {
             if (!gameRunning) return;
+            if (playerGroup.position.y > 4 && !playerDown) return; // player is on a roof - enemies have no hook gun, can't reach/shoot up
             
             const now = Date.now();
             if (now - enemy.lastFireTime < 1500) return;
@@ -3456,7 +3457,7 @@
                         playerGroup.position;
                     
                     let hitPlayer = false, playerHead = !isHSMode();
-                    if (!playerDown) {
+                    if (!playerDown && playerGroup.position.y <= 4) { // on a roof (y>4) enemy bullets can't hurt you
                         if (isHSMode() && !inVehicle) {
                             const bp = bullet.mesh.position;
                             if (Math.hypot(bp.x - playerGroup.position.x, bp.z - playerGroup.position.z) < 2) {
