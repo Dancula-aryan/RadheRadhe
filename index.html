@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -792,43 +792,64 @@
             font-size: 1.15em; line-height: 1.7; color: #fff;
         }
         #modeNote { font-size: 0.85em; color: #ffd6a0; min-height: 1.2em; margin-bottom: 4px; }
+
+        #lobbyScreen { background: radial-gradient(ellipse at 50% 30%, #3a1d6e 0%, #140a2e 55%, #05030d 100%); }
+        #lobbyCard { max-width: 1040px; display: grid; grid-template-columns: 1fr 340px 1fr; gap: 22px; text-align: left; align-items: start; border-color: #ffb300; box-shadow: 0 0 60px rgba(255,179,0,0.35); }
+        .lb-col h1 { margin-top: 0; }
+        .lb-mid { text-align: center; }
+        #previewCanvas { width: 320px; height: 420px; max-width: 100%; border-radius: 16px; background: radial-gradient(circle at 50% 70%, rgba(255,179,0,0.28), transparent 65%); }
+        .tex-btn { flex: 1; text-align: center; font-size: .85em; }
+        @media (max-width: 900px) { #lobbyCard { grid-template-columns: 1fr; } }
+        #toolHint { position: absolute; top: 60px; right: 20px; z-index: 120; color: #9ff; font: bold 14px Arial; text-shadow: 1px 1px 0 #000; text-align: right; }
+        #scopeOverlay { display: none; position: fixed; inset: 0; z-index: 90; pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, transparent 0, transparent 27%, #000 28.5%); }
+        #scopeOverlay::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(0,0,0,.8); }
+        #scopeOverlay::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(0,0,0,.8); }
     </style>
 </head>
 <body>
     <!-- ===================== LOBBY ===================== -->
     <div id="lobbyScreen">
         <div id="lobbyCard">
-            <h1>🇮🇳 TEAM BORDER</h1>
-            <div class="sub">Set up your soldier before deploying</div>
- 
-            <div class="lobby-section">
-                <div class="lobby-label">👤 Name</div>
-                <input id="playerNameInput" type="text" maxlength="16" placeholder="Enter your name" value="Sher Singh">
+            <div class="lb-col">
+                <h1>🇮🇳 TEAM BORDER</h1>
+                <div class="lobby-section"><div class="lobby-label">👤 Name</div>
+                    <input id="playerNameInput" type="text" maxlength="16" placeholder="Enter your name" value="Sher Singh"></div>
+                <div class="lobby-section"><div class="lobby-label">⚧ Gender</div>
+                    <div class="choice-row">
+                        <div class="choice-btn selected" id="genderMale" onclick="selectGender('male')">♂ Male</div>
+                        <div class="choice-btn" id="genderFemale" onclick="selectGender('female')">♀ Female</div>
+                    </div></div>
+                <div class="lobby-section"><div class="lobby-label">👕 Dress Color</div>
+                    <div class="dress-row" id="dressRow"></div>
+                    <div style="margin-top:8px">🎨 Apna color banao: <input type="color" id="dressPicker" value="#4a704a" oninput="pickDress(this.value)"></div></div>
+                <div class="lobby-section"><div class="lobby-label">🧵 Body Texture</div>
+                    <div class="choice-row">
+                        <div class="choice-btn tex-btn selected" data-tex="plain" onclick="selectTexture('plain')">Plain</div>
+                        <div class="choice-btn tex-btn" data-tex="camo" onclick="selectTexture('camo')">Camo</div>
+                        <div class="choice-btn tex-btn" data-tex="stripes" onclick="selectTexture('stripes')">Stripes</div>
+                        <div class="choice-btn tex-btn" data-tex="dots" onclick="selectTexture('dots')">Dots</div>
+                    </div></div>
             </div>
- 
-            <div class="lobby-section">
-                <div class="lobby-label">⚧ Gender</div>
-                <div class="choice-row">
-                    <div class="choice-btn selected" id="genderMale" onclick="selectGender('male')">♂ Male</div>
-                    <div class="choice-btn" id="genderFemale" onclick="selectGender('female')">♀ Female</div>
-                </div>
+            <div class="lb-col lb-mid">
+                <canvas id="previewCanvas" width="320" height="420"></canvas>
+                <div class="lobby-label">📏 Height <span id="heightVal">1.00</span>x</div>
+                <input type="range" id="heightRange" min="0.85" max="1.25" step="0.01" value="1" oninput="setBuild()" style="width:90%">
+                <div class="lobby-label">⚖️ Weight <span id="weightVal">1.00</span>x</div>
+                <input type="range" id="weightRange" min="0.8" max="1.5" step="0.01" value="1" oninput="setBuild()" style="width:90%">
             </div>
- 
-            <div class="lobby-section">
-                <div class="lobby-label">👕 Dress Color</div>
-                <div class="dress-row" id="dressRow"></div>
+            <div class="lb-col">
+                <div class="lobby-section"><div class="lobby-label">🎮 Game Mode</div>
+                    <div class="mode-row">
+                        <div class="mode-btn selected" id="modeBR" onclick="selectMode('br')">🌍 BR</div>
+                        <div class="mode-btn" id="modeHS" onclick="selectMode('hs')">🎯 HEADSHOT ONLY</div>
+                    </div>
+                    <div id="modeNote">🌍 BR: normal damage (body + head)</div></div>
+                <div class="lobby-section"><div class="lobby-label">🌐 Online (1v1 – 4v4)</div>
+                    <div class="mode-btn" style="opacity:.45;cursor:not-allowed" onclick="alert('Online ke liye alag server chahiye - abhi nahi bana')">ONLINE — server baaki hai</div></div>
+                <div class="lobby-section" style="font-size:.85em;color:#bcd">🔫 Rifle + Sniper ke saath start • R = gun swap • N = scope • P = hook gun • ammo infinite</div>
+                <button id="lobbyStartBtn" onclick="enterLoading()">⚔️ START MISSION</button>
             </div>
- 
-            <div class="lobby-section">
-                <div class="lobby-label">🎮 Game Mode</div>
-                <div class="mode-row">
-                    <div class="mode-btn selected" id="modeBR" onclick="selectMode('br')">🌍 BR</div>
-                    <div class="mode-btn" id="modeHS" onclick="selectMode('hs')">🎯 HEADSHOT ONLY</div>
-                </div>
-                <div id="modeNote">🌍 BR: normal damage (body + head)</div>
-            </div>
- 
-            <button id="lobbyStartBtn" onclick="enterLoading()">⚔️ START MISSION</button>
         </div>
     </div>
  
@@ -921,6 +942,7 @@
         <div class="weapon-slot" onclick="selectWeapon(1)">💣 Rocket Launcher (<span id="rocketAmmo">5</span>)</div>
         <div class="weapon-slot" onclick="selectWeapon(2)">🔫 Machine Gun (<span id="mgAmmo">100</span>)</div>
         <div class="weapon-slot" onclick="selectWeapon(3)">💥 Grenade (<span id="grenadeAmmo">3</span>)</div>
+        <div class="weapon-slot" onclick="selectWeapon(4)">🎯 AWM Sniper 8x (∞)</div>
         <div class="weapon-slot" id="glooSlot" onclick="toggleGlooPlacement()">🧊 Gloo Wall (<span id="glooAmmo">∞</span>)</div>
         <div class="weapon-slot" id="medkitSlot" onclick="useMedkit()">💊 Med Kit</div>
         <div class="weapon-slot" id="orionSlot" onclick="toggleOrionSkill()">🌌 Orion Skill (H)</div>
@@ -945,6 +967,8 @@
     <div id="headshotPopup">HEADSHOT!</div>
     <div id="hsBanner">🎯 HEADSHOT ONLY — sirf headshot ka damage lagega (aap, team aur enemy sab par)</div>
     <div id="reviveHint"></div>
+    <div id="toolHint"></div>
+    <div id="scopeOverlay"></div>
     <div id="spectateUI">
         <div class="spec-title">👁 SPECTATING: <span id="specName">-</span></div>
         <div id="specStatus"></div>
@@ -1032,6 +1056,9 @@
             <span class="key">X</span>
             <span>HELP ME (when down)</span>
         </div>
+        <div class="key-group"><span class="key">R</span><span>GUN SWAP</span></div>
+        <div class="key-group"><span class="key">N</span><span>SCOPE</span></div>
+        <div class="key-group"><span class="key">P</span><span>HOOK GUN</span></div>
     </div>
  
     <div id="miniMap">
@@ -1122,7 +1149,9 @@
         
         // Environment
         const MAP_HALF = 1900; // map length increased - spread objects across the bigger world
-        const rockColliders = []; // solid rocks: block player movement + block bullets (cover)
+        const rockColliders = [];
+        const platforms = [];   // standable tops {minX,maxX,minZ,maxZ,topY} - hook targets
+        const boxColliders = []; // solid wall boxes {minX,maxX,minZ,maxZ,y0,y1,noPush?} // solid rocks: block player movement + block bullets (cover)
         for (let i = 0; i < 160; i++) {
             const rockRadius = 1 + Math.random() * 2;
             const rockGeo = new THREE.DodecahedronGeometry(rockRadius);
@@ -1250,6 +1279,7 @@
             g.add(snow);
             g.position.set(x, 0, z);
             scene.add(g); // huge decorative backdrop, out near the map edge
+            rockColliders.push({ mesh: g, radius: size * 0.72 }); // peaks are SOLID: no walking over, bullets stop
         }
  
         // Scatter a small village (houses) + a factory near the middle of the map
@@ -1259,6 +1289,8 @@
             const r = 40 + Math.random() * 60;
             createHouse(HOUSE_CLUSTER_CENTER.x + Math.cos(a) * r, HOUSE_CLUSTER_CENTER.z + Math.sin(a) * r);
         }
+        buildingColliders.forEach(c => platforms.push({ minX: c.mesh.position.x - 2.5, maxX: c.mesh.position.x + 2.5,
+            minZ: c.mesh.position.z - 2.5, maxZ: c.mesh.position.z + 2.5, topY: 8.5 })); // houses: hook onto the roof tip
         createFactory(-350, -250);
         createFactory(500, -400);
  
@@ -1457,7 +1489,7 @@
             document.getElementById('health').textContent = health;
             document.getElementById('healthFill').style.width = health + '%';
             stance = 'stand';
-            playerGroup.scale.set(1, 1, 1);
+            applyBuild();
             document.getElementById('spectateUI').style.display = 'none';
             addCombatLog(`💚 ${mate.name} ne aapko revive kar diya! (screen par click karke wapas khelo)`);
             try { controls.lock(); } catch (err) { /* click on the screen to resume */ }
@@ -1571,6 +1603,12 @@
         
         function createWeaponOnGround(type, pos) {
             const group = new THREE.Group();
+            if (type === 4 || type === 0) { // sniper / rifle pickups use the shared gun model
+                const gm = buildGunMesh(type); gm.position.y = 0.8; gm.rotation.y = Math.random() * 6;
+                group.add(gm); group.position.copy(pos); scene.add(group);
+                weaponsOnGround.push({ mesh: group, type, ammo: 0 });
+                return;
+            }
             
             if (type === 0) { // Rifle
                 const geo = new THREE.BoxGeometry(0.5, 0.5, 2);
@@ -1604,6 +1642,8 @@
         }
         
         createWeaponOnGround(1, new THREE.Vector3(50, 0, 150)); // Rocket
+        [[30, 60], [-60, -40], [150, -120], [-150, 100], [220, 40]].forEach(p => createWeaponOnGround(4, new THREE.Vector3(p[0], 0, p[1]))); // Snipers
+        createWeaponOnGround(0, new THREE.Vector3(60, 0, 40));
         createWeaponOnGround(2, new THREE.Vector3(-50, 0, 200)); // MG
         createWeaponOnGround(3, new THREE.Vector3(80, 0, 100)); // Grenade
         
@@ -1629,6 +1669,180 @@
         
         playerGroup.position.set(0, 0, 100);
         scene.add(playerGroup);
+
+        // ===================== NEW: BUILD / TEXTURE / HAND GUN / SCOPE / HOOK / BIG BUILDINGS =====================
+        let playerHeight = 1, playerWeight = 1, playerTexture = 'plain';
+        let scopeByN = false, prevWeapon = 4, scoped = false, hookMode = false, hookState = null, hookLine = null;
+        const SCOPE_ZOOM = [2, 4, 3, 0, 8];
+
+        function applyBuild() { playerGroup.scale.set(playerWeight, playerHeight, playerWeight); }
+        const texCache = {};
+        function getTexture(kind) {
+            if (kind === 'plain') return null;
+            if (texCache[kind]) return texCache[kind];
+            const c = document.createElement('canvas'); c.width = c.height = 128;
+            const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 128, 128);
+            if (kind === 'camo') for (let i = 0; i < 40; i++) {
+                x.fillStyle = `rgba(0,0,0,${0.25 + Math.random() * 0.35})`; x.beginPath();
+                x.ellipse(Math.random() * 128, Math.random() * 128, 8 + Math.random() * 16, 6 + Math.random() * 10, Math.random() * 3, 0, 7); x.fill();
+            } else if (kind === 'stripes') { x.fillStyle = 'rgba(0,0,0,.4)'; for (let y = 0; y < 128; y += 16) x.fillRect(0, y, 128, 8); }
+            else { x.fillStyle = 'rgba(0,0,0,.4)'; for (let a = 8; a < 128; a += 20) for (let b = 8; b < 128; b += 20) { x.beginPath(); x.arc(a, b, 5, 0, 7); x.fill(); } }
+            const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; texCache[kind] = t; return t;
+        }
+
+        function buildGunMesh(type) {
+            const g = new THREE.Group();
+            const dark = new THREE.MeshStandardMaterial({ color: 0x2a2a2a }), tint = new THREE.MeshStandardMaterial({ color: 0x555a60 });
+            const add = (geo, mat, x, y, z, rx) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); if (rx) m.rotation.x = rx; g.add(m); return m; };
+            if (type === 'hook') {
+                add(new THREE.CylinderGeometry(0.28, 0.28, 1.6, 10), new THREE.MeshStandardMaterial({ color: 0x20c9a6 }), 0, 0, 0.6, Math.PI / 2);
+                add(new THREE.TorusGeometry(0.4, 0.1, 6, 12), new THREE.MeshStandardMaterial({ color: 0xffd700 }), 0, 0, 1.5);
+            } else if (type === 4) { // sniper + 8x scope
+                add(new THREE.BoxGeometry(0.25, 0.3, 3.8), dark, 0, 0, 0.9);
+                add(new THREE.CylinderGeometry(0.22, 0.22, 1.3, 10), tint, 0, 0.42, 0.7, Math.PI / 2);
+                add(new THREE.BoxGeometry(0.3, 0.55, 0.6), dark, 0, -0.35, -0.5);
+            } else if (type === 1) {
+                add(new THREE.CylinderGeometry(0.38, 0.38, 2.6, 10), new THREE.MeshStandardMaterial({ color: 0x556B2F }), 0, 0, 0.8, Math.PI / 2);
+            } else if (type === 3) {
+                add(new THREE.SphereGeometry(0.4, 10, 8), new THREE.MeshStandardMaterial({ color: 0x3f5f2f }), 0, 0, 0.5);
+            } else { // rifle (2x) / machine gun (3x)
+                add(new THREE.BoxGeometry(0.3, 0.35, type === 2 ? 2.8 : 2.2), dark, 0, 0, 0.7);
+                add(new THREE.BoxGeometry(0.22, 0.22, 0.7), tint, 0, 0.33, 0.5);
+                add(new THREE.BoxGeometry(0.28, 0.6, 0.35), dark, 0, -0.4, 0.3);
+            }
+            return g;
+        }
+        const handGun = new THREE.Group();
+        handGun.position.set(-1.1, 2, 0.8); // right hand side, pointing where you look
+        playerGroup.add(handGun);
+        function updateHandGun() {
+            while (handGun.children.length) handGun.remove(handGun.children[0]);
+            handGun.add(buildGunMesh(hookMode ? 'hook' : currentWeapon));
+        }
+        function updateToolHint() {
+            const z = SCOPE_ZOOM[currentWeapon];
+            document.getElementById('toolHint').innerHTML =
+                (hookMode ? '🪝 HOOK GUN ON (P) - click: upar khicho<br>' : '') + (z ? `🔭 Scope ${z}x (N)${scoped ? ' ON' : ''}` : '');
+        }
+        function setScope(on) {
+            const z = SCOPE_ZOOM[currentWeapon];
+            scoped = !!(on && z > 0 && !hookMode);
+            camera.fov = scoped ? 75 / z : 75; camera.updateProjectionMatrix();
+            const big = scoped && currentWeapon === 4;
+            document.getElementById('scopeOverlay').style.display = big ? 'block' : 'none';
+            document.getElementById('crosshair').style.display = big ? 'none' : '';
+            updateToolHint();
+        }
+        function toggleHook() {
+            hookMode = !hookMode;
+            if (hookMode) setScope(false);
+            updateHandGun(); updateToolHint();
+            addCombatLog(hookMode ? '🪝 Hook gun ON - building/ghar ki taraf dekh ke click karo' : '🔫 Hook gun OFF');
+        }
+        function fireHook() {
+            if (hookState) return;
+            const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
+            let best = null, bestAng = 0.25;
+            platforms.forEach(p => {
+                const v = new THREE.Vector3((p.minX + p.maxX) / 2, p.topY, (p.minZ + p.maxZ) / 2).sub(camera.position);
+                if (v.length() > 100) return;
+                const ang = Math.acos(Math.min(1, v.normalize().dot(dir)));
+                if (ang < bestAng) { bestAng = ang; best = p; }
+            });
+            if (!best) { addCombatLog('🪝 Hook kisi building par nahi laga (peak par hook nahi lagta)'); return; }
+            hookState = { x: (best.minX + best.maxX) / 2, y: best.topY, z: (best.minZ + best.maxZ) / 2 };
+            if (!hookLine) {
+                hookLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]),
+                    new THREE.LineBasicMaterial({ color: 0x66ffcc }));
+                hookLine.frustumCulled = false; scene.add(hookLine);
+            }
+            hookLine.visible = true;
+            addCombatLog('🪝 Hook laga! Upar ja rahe ho...');
+        }
+        function updateHook() {
+            if (!hookState) { if (hookLine) hookLine.visible = false; return; }
+            const p = playerGroup.position, t = hookState;
+            const v = new THREE.Vector3(t.x - p.x, t.y - p.y, t.z - p.z), len = v.length();
+            velocityY = 0;
+            if (len < 2.5) { p.set(t.x, t.y, t.z); hookState = null; isGrounded = true; addCombatLog('🏢 Aap chhat par pahunch gaye!'); }
+            else p.add(v.normalize().multiplyScalar(1.7));
+            if (hookLine) {
+                const a = hookLine.geometry.attributes.position;
+                a.setXYZ(0, p.x, p.y + 2, p.z); a.setXYZ(1, t.x, t.y, t.z); a.needsUpdate = true;
+            }
+        }
+        function groundHeightAt(pos) {
+            let g = 0;
+            for (const p of platforms) if (pos.x > p.minX && pos.x < p.maxX && pos.z > p.minZ && pos.z < p.maxZ && pos.y >= p.topY - 1.2) g = Math.max(g, p.topY);
+            return g;
+        }
+
+        // Big enterable buildings: walls, a 6-wide door, flat roof you can reach only with the hook gun
+        function createBigBuilding(cx, cz, w, d, h, color) {
+            const T = 1.5, mat = new THREE.MeshStandardMaterial({ color });
+            const x0 = cx - w / 2, x1 = cx + w / 2, z0 = cz - d / 2, z1 = cz + d / 2;
+            const box = (minX, maxX, minZ, maxZ, y0, y1, m, extra) => {
+                const mesh = new THREE.Mesh(new THREE.BoxGeometry(maxX - minX, y1 - y0, maxZ - minZ), m || mat);
+                mesh.position.set((minX + maxX) / 2, (y0 + y1) / 2, (minZ + maxZ) / 2);
+                mesh.castShadow = mesh.receiveShadow = true; scene.add(mesh);
+                boxColliders.push(Object.assign({ minX, maxX, minZ, maxZ, y0, y1 }, extra));
+            };
+            box(x0, x1, z0, z0 + T, 0, h); box(x0, x0 + T, z0, z1, 0, h); box(x1 - T, x1, z0, z1, 0, h);
+            box(x0, cx - 3, z1 - T, z1, 0, h); box(cx + 3, x1, z1 - T, z1, 0, h);
+            box(cx - 3, cx + 3, z1 - T, z1, 7, h); // lintel above the door
+            box(x0, x1, z0, z1, h, h + 0.5, new THREE.MeshStandardMaterial({ color: 0x444444 }), { noPush: true });
+            platforms.push({ minX: x0, maxX: x1, minZ: z0, maxZ: z1, topY: h + 0.5 });
+            const floor = new THREE.Mesh(new THREE.BoxGeometry(w - 2 * T, 0.1, d - 2 * T), new THREE.MeshStandardMaterial({ color: 0x6b6256 }));
+            floor.position.set(cx, 0.05, cz); scene.add(floor);
+            const lamp = new THREE.PointLight(0xfff0cc, 1.2, w * 1.2); lamp.position.set(cx, h - 3, cz); scene.add(lamp);
+        }
+        [[150, 200, 36, 30, 16, 0xb9a98a], [-180, 150, 40, 32, 18, 0x9aa7b5], [-120, -180, 34, 34, 14, 0xc4b08a],
+         [250, -60, 38, 30, 20, 0xa6a6a6], [-300, 0, 42, 36, 16, 0xb59a8a], [60, -300, 36, 36, 18, 0x93a58a]]
+            .forEach(b => createBigBuilding(b[0], b[1], b[2], b[3], b[4], b[5]));
+
+        // ===================== NEW: LOBBY CONTROLS + 3D PREVIEW =====================
+        window.pickDress = function(hex) {
+            playerDressColor = parseInt(hex.slice(1), 16);
+            document.querySelectorAll('.dress-swatch').forEach(s => s.classList.remove('selected'));
+        };
+        window.selectTexture = function(t) {
+            playerTexture = t;
+            document.querySelectorAll('.tex-btn').forEach(b => b.classList.toggle('selected', b.dataset.tex === t));
+        };
+        window.setBuild = function() {
+            playerHeight = parseFloat(document.getElementById('heightRange').value);
+            playerWeight = parseFloat(document.getElementById('weightRange').value);
+            document.getElementById('heightVal').textContent = playerHeight.toFixed(2);
+            document.getElementById('weightVal').textContent = playerWeight.toFixed(2);
+        };
+        (function lobbyPreview() {
+            const cv = document.getElementById('previewCanvas');
+            const r = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+            r.setSize(320, 420, false);
+            const sc = new THREE.Scene();
+            sc.add(new THREE.AmbientLight(0xffffff, 0.9));
+            const dl = new THREE.DirectionalLight(0xffffff, 1.1); dl.position.set(3, 6, 5); sc.add(dl);
+            const cam = new THREE.PerspectiveCamera(35, 320 / 420, 0.1, 100); cam.position.set(0, 3.2, 14); cam.lookAt(0, 2, 0);
+            const g = new THREE.Group(), pm = new THREE.MeshStandardMaterial({ color: 0x4A704A }), hm = new THREE.MeshStandardMaterial({ color: 0xFFDBAD });
+            const pb = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 3), pm); pb.position.y = 1.5; g.add(pb);
+            const ph = new THREE.Mesh(new THREE.SphereGeometry(0.8), hm); ph.position.y = 3; g.add(ph);
+            const pg = buildGunMesh(0); pg.position.set(-1.1, 2, 0.8); g.add(pg);
+            sc.add(g);
+            const base = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.6, 0.2, 32), new THREE.MeshStandardMaterial({ color: 0xffb300 }));
+            base.position.y = -0.1; sc.add(base);
+            let lastTex = null;
+            function loop() {
+                if (document.getElementById('lobbyScreen').style.display === 'none') return;
+                requestAnimationFrame(loop);
+                g.rotation.y += 0.012;
+                pm.color.set(playerDressColor);
+                if (lastTex !== playerTexture) { pm.map = getTexture(playerTexture); pm.needsUpdate = true; lastTex = playerTexture; }
+                hm.color.set(playerGender === 'female' ? 0xF2C6A0 : 0xFFDBAD);
+                g.scale.set(playerWeight, playerHeight, playerWeight);
+                r.render(sc, cam);
+            }
+            requestAnimationFrame(loop);
+        })();
         
         // --- AI TEAMMATES (4 Soldiers) ---
         const teammates = [];
@@ -1768,7 +1982,7 @@
         let inVehicle = false;
         let currentVehicle = null;
         let currentWeapon = 0;
-        let ammo = [999, 5, 100, 3];
+        let ammo = [999, 999, 999, 999, 999]; // all ammo infinite
         let teamTotalKills = 0;
         
         // Movement
@@ -1825,7 +2039,7 @@
         // --- CONTINUOUS FIRE (hold mouse button to keep shooting) ---
         let isMouseDown = false;
         let lastPlayerFireTime = 0;
-        const FIRE_INTERVAL = [180, 700, 100, 900]; // ms between shots per weapon: rifle, rocket, mg, grenade
+        const FIRE_INTERVAL = [180, 700, 100, 900, 1500]; // ms between shots per weapon: rifle, rocket, mg, grenade
         
         // Keyboard
         const keys = {};
@@ -1843,11 +2057,18 @@
                 return;
             }
             
+            if (gameRunning) {
+                const kk = e.key.toLowerCase();
+                if (kk === 'r') selectWeapon(prevWeapon);      // swap between your last two guns
+                else if (kk === 'n') { scopeByN = !scoped; setScope(scopeByN); }
+                else if (kk === 'p') toggleHook();
+            }
+            
             if (e.key === 'f' && gameRunning) {
                 toggleVehicle();
             }
             
-            if (e.key >= '1' && e.key <= '4') {
+            if (e.key >= '1' && e.key <= '5') {
                 selectWeapon(parseInt(e.key) - 1);
             }
             
@@ -1942,6 +2163,7 @@
                     placeGlooWall();
                 } else {
                     isMouseDown = true;
+                    if (currentWeapon === 4 && !hookMode) setScope(true); // sniper: scope stays open while you hold the click
                     fireBullet(); // fire immediately on click, then auto-repeat while held
                     lastPlayerFireTime = performance.now();
                 }
@@ -1949,30 +2171,33 @@
         });
  
         window.addEventListener('mouseup', (e) => {
-            if (e.button === 0) isMouseDown = false;
+            if (e.button === 0) {
+                isMouseDown = false;
+                if (scoped && !scopeByN && currentWeapon === 4) setScope(false); // click chhoda -> scope band
+            }
         });
         
         // Weapon selection
         window.selectWeapon = function(weaponIndex) {
+            if (weaponIndex === currentWeapon && !hookMode) return;
+            if (weaponIndex !== currentWeapon) prevWeapon = currentWeapon;
             currentWeapon = weaponIndex;
-            document.querySelectorAll('.weapon-slot').forEach((slot, i) => {
-                if (i === weaponIndex) slot.classList.add('active');
-                else slot.classList.remove('active');
-            });
+            hookMode = false;
+            document.querySelectorAll('.weapon-slot').forEach((slot, i) => slot.classList.toggle('active', i === weaponIndex));
+            scopeByN = false;
+            setScope(false);
+            updateHandGun();
             updateWeaponStatus();
         };
         
         // Update weapon status
         function updateWeaponStatus() {
-            document.getElementById('weaponStatus').innerHTML = 
-                `Weapon: ${getWeaponName(currentWeapon)} (${ammo[currentWeapon]})`;
-            document.getElementById('rocketAmmo').textContent = ammo[1];
-            document.getElementById('mgAmmo').textContent = ammo[2];
-            document.getElementById('grenadeAmmo').textContent = ammo[3];
+            document.getElementById('weaponStatus').innerHTML = `Weapon: ${getWeaponName(currentWeapon)} (∞)`;
+            ['rocketAmmo', 'mgAmmo', 'grenadeAmmo'].forEach(id => { document.getElementById(id).textContent = '∞'; });
         }
         
         function getWeaponName(type) {
-            return ['MP5', 'M79', 'M60', 'Grenade'][type];
+            return ['MP5 (2x)', 'M79 (4x)', 'M60 (3x)', 'Grenade', 'AWM Sniper (8x)'][type];
         }
         
         // Pickup weapon
@@ -1986,6 +2211,7 @@
                     scene.remove(weapon.mesh);
                     weaponsOnGround.splice(index, 1);
                     addCombatLog(`Picked up ${getWeaponName(weapon.type)}!`);
+                selectWeapon(weapon.type);
                     updateWeaponStatus();
                 }
             });
@@ -2304,6 +2530,17 @@
         // ===================== COLLISION (rocks, buildings + gloo walls are solid) =====================
         // Push the player back out of any rock/building/gloo wall they're overlapping
         function resolvePlayerCollisions(targetPos) {
+            const py = playerGroup.position.y, ph = 3 * playerGroup.scale.y, R = PLAYER_RADIUS;
+            for (const b of boxColliders) {
+                if (b.noPush || py + ph <= b.y0 || py >= b.y1 - 0.3) continue;
+                if (targetPos.x > b.minX - R && targetPos.x < b.maxX + R && targetPos.z > b.minZ - R && targetPos.z < b.maxZ + R) {
+                    const dl = targetPos.x - (b.minX - R), dr = (b.maxX + R) - targetPos.x;
+                    const dd = targetPos.z - (b.minZ - R), du = (b.maxZ + R) - targetPos.z;
+                    const m = Math.min(dl, dr, dd, du);
+                    if (m === dl) targetPos.x = b.minX - R; else if (m === dr) targetPos.x = b.maxX + R;
+                    else if (m === dd) targetPos.z = b.minZ - R; else targetPos.z = b.maxZ + R;
+                }
+            }
             const allColliders = rockColliders.concat(buildingColliders, glooWalls);
             for (const c of allColliders) {
                 const dx = targetPos.x - c.mesh.position.x;
@@ -2323,6 +2560,9 @@
         // Gloo walls take 10 damage per bullet and shatter once their health runs out.
         const GLOO_BULLET_DAMAGE = 10;
         function isBulletBlocked(position) {
+            for (const b of boxColliders) {
+                if (position.x > b.minX && position.x < b.maxX && position.z > b.minZ && position.z < b.maxZ && position.y > b.y0 && position.y < b.y1) return true;
+            }
             for (const c of rockColliders) {
                 if (position.distanceTo(c.mesh.position) < c.radius) return true; // rocks are indestructible
             }
@@ -2547,6 +2787,7 @@
         // Fire bullet
         function fireBullet() {
             if (!gameRunning || playerDown) return;
+            if (hookMode) { fireHook(); return; }
  
             // Firing your weapon breaks the Orion orb form - you can't shoot while you're a ball of light
             if (isSkillActive) {
@@ -2560,7 +2801,6 @@
                 return;
             }
             
-            ammo[currentWeapon]--;
             updateWeaponStatus();
             
             const bulletGeo = new THREE.SphereGeometry(
@@ -2594,10 +2834,11 @@
             bullets.push({
                 mesh: bullet,
                 direction: direction.clone(),
-                speed: currentWeapon === 1 ? 2 : 1,
+                speed: currentWeapon === 4 ? 3 : (currentWeapon === 1 ? 2 : 1),
+                sniper: currentWeapon === 4,
                 damage: isSkillActive ? baseDamage * ORION_DAMAGE_MULT : baseDamage,
                 distance: 0,
-                maxDistance: 200,
+                maxDistance: currentWeapon === 4 ? 450 : 200,
                 owner: 'player'
             });
         }
@@ -2939,7 +3180,7 @@
                     }
  
                     // Solid collision: can't walk through rocks or gloo walls
-                    if (!inVehicle) {
+                    if (!inVehicle && !hookState) {
                         resolvePlayerCollisions(playerGroup.position);
                     }
  
@@ -2948,8 +3189,9 @@
                         const dt = 1 / 60;
                         velocityY -= GRAVITY * dt;
                         playerGroup.position.y += velocityY * dt;
-                        if (playerGroup.position.y <= 0) {
-                            playerGroup.position.y = 0;
+                        const gY = groundHeightAt(playerGroup.position);
+                        if (playerGroup.position.y <= gY) {
+                            playerGroup.position.y = gY;
                             velocityY = 0;
                             isGrounded = true;
                         }
@@ -2959,8 +3201,9 @@
                         isGrounded = true;
                     }
  
+                    updateHook();
                     // Smoothly animate body height for stand / crouch (V) / prone (B)
-                    playerGroup.scale.y += (stanceInfo.scaleY - playerGroup.scale.y) * 0.25;
+                    playerGroup.scale.y += (stanceInfo.scaleY * playerHeight - playerGroup.scale.y) * 0.25;
  
                     // Continuous fire while mouse button is held down
                     if (isMouseDown && !isPlacingGloo && !isHealing) {
@@ -2984,6 +3227,7 @@
                     camera.position.y += stanceInfo.camY;
                     camera.position.x -= cameraDir.x * 8;
                     camera.position.z -= cameraDir.z * 8;
+                    playerGroup.rotation.y = Math.atan2(cameraDir.x, cameraDir.z); // body + gun face where you aim
                     
                     // Update vehicle positions if inside
                     if (inVehicle) {
@@ -3147,7 +3391,7 @@
                             // Headshot check: enemy head sits at local y=3.5 (base + head sphere radius 1)
                             const enemyHeadY = enemy.mesh.position.y + 3.5;
                             const isHeadshot = Math.abs(bullet.mesh.position.y - enemyHeadY) < 1.1;
-                            let dmg = isHeadshot ? bullet.damage * 4 : bullet.damage;
+                            let dmg = bullet.sniper ? Math.ceil(enemy.maxHealth / 2) * (isHeadshot ? 4 : 1) : (isHeadshot ? bullet.damage * 4 : bullet.damage); // sniper: 2 body shots = kill
                             // Headshot Only mode: body shots do NOTHING
                             if (isHSMode() && !isHeadshot) dmg = 0;
  
@@ -3399,11 +3643,16 @@
         // Applies the chosen name/gender/dress to the actual in-scene player model + HUD
         function applyCharacterCustomization() {
             bodyMat.color.set(playerDressColor);
+            bodyMat.map = getTexture(playerTexture); bodyMat.needsUpdate = true;
+            applyBuild(); hookMode = false; hookState = null;
+            currentWeapon = 0; prevWeapon = 4; selectWeapon(4); // start: rifle in hand slot + sniper ready (R swaps)
+            selectWeapon(0);
             headMat.color.set(playerGender === 'female' ? 0xF2C6A0 : 0xFFDBAD);
             head.scale.set(playerGender === 'female' ? 0.92 : 1, playerGender === 'female' ? 0.95 : 1, playerGender === 'female' ? 0.92 : 1);
             document.getElementById('playerInfoLine').textContent =
                 `👤 ${playerName} • ${gameMode === 'hs' ? 'HEADSHOT ONLY' : gameMode.toUpperCase()} • ${playerGender === 'female' ? '♀' : '♂'}`;
             document.getElementById('hsBanner').style.display = gameMode === 'hs' ? 'block' : 'none';
+            updateToolHint();
         }
  
         // ===================== LOBBY -> LOADING ("HACKER KING") -> GAME =====================
@@ -3513,7 +3762,7 @@
             isGrounded = true;
             stance = 'stand';
             playerGroup.position.y = 0;
-            playerGroup.scale.set(1, 1, 1);
+            applyBuild();
             isMouseDown = false;
             isAutoRunning = false;
  
